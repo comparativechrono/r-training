@@ -107,3 +107,158 @@ def rsrun(code, label='run it in RStudio'):
 
 def nbopen(path, label=None):
     return f'<button class="do showme" type="button" data-nb-open="{esc(path)}">{label or "open " + esc(path.split("/")[-1])}</button>'
+
+
+# ---------------------------------------------------------------------------------------------------------------------
+# for the courses (R basics, Tidyverse): code typed into RStudio's Console, checks made by R, "if you have time",
+# console output, tables and small diagrams
+def rstype(code, label='show me'):
+    """a button that types R code into RStudio's Console (the student presses Enter)"""
+    return f'<button class="do showme" type="button" data-rs-type="{esc(code)}">{label}</button>'
+
+
+def rscode(code, label='show me'):
+    """R code, with a button that types it into RStudio's Console"""
+    return f'{c(code)} {rstype(code, label)}'
+
+
+def block(code, show=True, label='show me'):
+    """R code of several lines, in a box, with a button that types it into RStudio's Console and a Copy button"""
+    b = f'<button class="do showme" type="button" data-rs-type="{esc(code.strip())}">{label}</button>' if show else ''
+    return (f'<div class="codefile rblock"><div class="cf-head"><span class="cf-name">R</span><span class="grow"></span>{b}'
+            f'<button class="btn small" type="button" data-copy-code="1">Copy</button></div><pre class="codeblock">{esc(code.strip())}</pre></div>')
+
+
+def out(text, title=None):
+    """what R prints (shown in the instructions)"""
+    t = f'<div class="rout-t">{title}</div>' if title else ''
+    return f'<div class="rout">{t}<pre>{esc(text.strip(chr(10)))}</pre></div>'
+
+
+def rtask(tid, body, rcheck, auto=None):
+    """a step that R checks: rcheck is an R expression, evaluated quietly in RStudio's R session after each command;
+    the step ticks when it is TRUE"""
+    a = f' data-auto="{esc(auto)}"' if auto else ''
+    return f'<li data-task="{esc(tid)}" data-rcheck="{esc(rcheck)}"{a}>{body}</li>'
+
+
+def optional(title, body):
+    """a part for those who have time: its steps and questions don't count towards the certificate"""
+    return (f'<div class="optional">\n  <div class="opt-t"><span class="opt-tag">If you have time</span> {title}</div>\n'
+            f'  <p class="opt-note">This part is optional: it doesn’t count towards your certificate.</p>\n{body}\n</div>')
+
+
+def table(head, rows, cls='plain'):
+    th = ''.join(f'<th>{x}</th>' for x in head)
+    tr = ''.join('<tr>' + ''.join(f'<td>{x}</td>' for x in r) + '</tr>' for r in rows)
+    return f'<div class="table"><table class="{cls}"><thead><tr>{th}</tr></thead><tbody>{tr}</tbody></table></div>'
+
+
+def vecop(a, b, op='+', caption=None, warn=None, labels=('Vector 1', 'Vector 2', 'Result')):
+    """a diagram of a vectorised operation, as R does it: the values in the same position are matched, and a shorter
+    vector is recycled (its repeated values are drawn paler); warn: the warning R gives when it doesn't fit"""
+    import operator
+    f = {'+': operator.add, '-': operator.sub, '*': operator.mul, '/': operator.truediv}[op]
+    n = max(len(a), len(b))
+    A = [a[i % len(a)] for i in range(n)]
+    B = [b[i % len(b)] for i in range(n)]
+    R = [f(x, y) for x, y in zip(A, B)]
+    fmt = lambda v: str(int(v)) if float(v).is_integer() else f'{v:g}'
+
+    def row(label, vals, real, cls):
+        cs = ''.join(f'<span class="vc{" " + cls if cls else ""}{" rec" if i >= real else ""}">{fmt(v)}</span>' for i, v in enumerate(vals))
+        return f'<div class="vrow"><span class="vlab">{label}</span><span class="vcells">{cs}</span></div>'
+    rows = [row(labels[0], A, len(a), ''), f'<div class="vrow"><span class="vlab"></span><span class="vopsym">{esc(op)}</span></div>',
+            row(labels[1], B, len(b), ''), '<div class="vrow vline"><span class="vlab"></span><span class="vrule"></span></div>',
+            row(labels[2], R, n, 'res')]
+    w = f'<div class="vwarn">{warn}</div>' if warn else ''
+    cap = f'<figcaption>{caption}</figcaption>' if caption else ''
+    alt = esc(f'{labels[0]} {" ".join(fmt(x) for x in a)} {op} {labels[1]} {" ".join(fmt(x) for x in b)} gives {" ".join(fmt(x) for x in R)}')
+    return f'<figure class="vecop" role="img" aria-label="{alt}">{"".join(rows)}{w}{cap}</figure>'
+
+
+def kbd(*keys):
+    """keys pressed together: kbd('Ctrl', 'Enter')"""
+    return '+'.join(f'<kbd>{esc(k)}</kbd>' for k in keys)
+
+
+# the commands shown with what R prints for them (console()), in the order they appear: the tests run them in R and
+# compare what R prints
+EXAMPLES = []
+
+
+def console(*pairs, title=None, check=True):
+    """a piece of RStudio's Console, as it looks after some commands: each command after R's prompt (>, and + on the
+    lines that continue it), followed by what R prints. pairs: (code, output)"""
+    lines = []
+    for code, output in pairs:
+        cl = code.strip('\n').split('\n')
+        lines.append('> ' + cl[0])
+        lines.extend('+ ' + x for x in cl[1:])
+        # (an output can start with a blank line, as R's t.test() does, but not end with one)
+        output = output.rstrip('\n')
+        if output:
+            lines.append(output)
+        if check:
+            EXAMPLES.append({'code': code.strip('\n'), 'output': output})
+    return out('\n'.join(lines), title)
+
+
+# ---- checks made by R (for rtask): R expressions, TRUE when the step has been done ----
+def rq(s):
+    """an R string"""
+    return '"' + str(s).replace('\\', '\\\\').replace('"', '\\"') + '"'
+
+
+def lastv(cond):
+    """the value of the last command the student ran (which R keeps in .Last.value), called v in cond"""
+    return f'(function(v) {{ {cond} }})(.Last.value)'
+
+
+def tib(n, cols=(), test=None):
+    """the last command gave a table (a data frame or tibble) with n rows, and these columns"""
+    c = ['is.data.frame(v)', f'nrow(v) == {n}']
+    if cols:
+        c.append(f'all(c({", ".join(rq(x) for x in cols)}) %in% names(v))')
+    if test:
+        c.append(test)
+    return lastv(' && '.join(c))
+
+
+def has_table(n, cols):
+    """there is a table (a data frame or tibble) with n rows and these columns in R's memory, whatever its name"""
+    cs = ', '.join(rq(x) for x in cols)
+    return (f'any(vapply(ls(globalenv()), function(nm) {{ o <- get(nm, envir = globalenv()); '
+            f'is.data.frame(o) && nrow(o) == {n} && all(c({cs}) %in% names(o)) }}, logical(1)))')
+
+
+def gg(geom, stat=None, maps=None, fixed=None, labels=(), builds=True, extra=None):
+    """the last command drew a ggplot that has a layer of this geometry (a ggproto class such as "GeomPoint"), and in
+    that layer: the statistic stat, the aesthetics in maps mapped to these columns (in ggplot() or in the layer), and
+    the fixed aesthetics in fixed (an R condition on the value p, e.g. 'identical(p, "blue2")'); labels: the titles it
+    has (title, x, y); builds: R can draw it (a column that doesn't exist only fails when the plot is drawn)"""
+    lay = [f'inherits(l$geom, {rq(geom)})']
+    if stat:
+        lay.append(f'inherits(l$stat, {rq(stat)})')
+    for a, col in (maps or {}).items():
+        lay.append(f'any(vapply(list(v$mapping, l$mapping), function(m) !is.null(m${a}) && identical(rlang::as_label(m${a}), {rq(col)}), logical(1)))')
+    for a, cond in (fixed or {}).items():
+        lay.append(f'(function(p) !is.null(p) && isTRUE({cond}))(l$aes_params${a})')
+    parts = ['inherits(v, "ggplot")', 'any(vapply(v$layers, function(l) ' + ' && '.join(lay) + ', logical(1)))']
+    for k in labels:
+        parts.append(f'is.character(v$labels${k}) && nzchar(v$labels${k})')
+    if extra:
+        parts.append(extra)
+    if builds:
+        parts.append('!inherits(try(ggplot2::ggplot_build(v), silent = TRUE), "try-error")')
+    return lastv(' && '.join(parts))
+
+
+def certificate_chapter(cid, num, course_title, minutes_note):
+    """the last chapter of a course: the certificate (cert.js fills in the panel)"""
+    body = f'''
+<p>When you have finished every step and question of this course (apart from those marked <b>If you have time</b>), your certificate is unlocked here. It shows your name and the date you finished, and you can download it as a PDF to keep or to send to your tutor.</p>
+<div class="cert-panel" data-cert-panel></div>
+'''
+    return (f'<section class="chapter cert-chapter" id="{cid}" data-num="{num}" data-title="Certificate" data-bench="rstudio" data-cert hidden>\n'
+            f'  <h1>Your certificate</h1>\n  <p class="lede">{minutes_note}</p>\n{body}\n</section>\n')

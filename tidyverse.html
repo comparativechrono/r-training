@@ -1,0 +1,737 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tidyverse – Introduction to R</title>
+<meta name="description" content="Tidyverse, the second part of an introduction to R for people who are new to it: reading data from files with readr, choosing rows and columns with dplyr, combining steps with pipes, and drawing plots with ggplot2. R runs in your web browser, in an RStudio-style workbench, so there is nothing to install.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231b2340'/%3E%3Crect x='6' y='6' width='9' height='9' rx='2' fill='%238ec5ff'/%3E%3Crect x='17' y='6' width='9' height='9' rx='2' fill='%23415187'/%3E%3Crect x='6' y='17' width='9' height='9' rx='2' fill='%23415187'/%3E%3Crect x='17' y='17' width='9' height='9' rx='2' fill='%23415187'/%3E%3C/svg%3E">
+<script src="assets/js/isolation.js"></script>
+<link rel="stylesheet" href="assets/vendor/codemirror/codemirror.css">
+<link rel="stylesheet" href="assets/css/app.css">
+<link rel="stylesheet" href="assets/css/wb.css">
+<link rel="stylesheet" href="assets/css/r.css">
+<link rel="stylesheet" href="assets/css/rstudio.css">
+<link rel="stylesheet" href="assets/css/nb.css">
+<link rel="stylesheet" href="assets/css/term.css">
+<link rel="stylesheet" href="assets/css/files.css">
+<link rel="stylesheet" href="assets/css/ai.css">
+<link rel="stylesheet" href="assets/css/course.css">
+</head>
+<body data-page="tidyverse" data-title="Tidyverse" data-course="tidyverse" data-first="rstudio">
+<div class="app">
+
+  <header class="topbar">
+    <button class="btn top-toggle" id="tutToggle" type="button" title="Hide the instructions so that the workbench fills the window (Ctrl+\)" aria-controls="tut" aria-expanded="true"><svg class="ic" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M16 10l-2 2 2 2"/></svg></button>
+    <a class="brand" href="index.html" title="All the courses of Introduction to R">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#26315a"/><rect x="6" y="6" width="9" height="9" rx="2" fill="#8ec5ff"/><path d="M8.6 8.8l2.4 1.7-2.4 1.7" fill="none" stroke="#1b2340" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="17" y="6" width="9" height="9" rx="2" fill="#415187"/><path d="M19 9h5M19 12h3" stroke="#a9b4d6" stroke-width="1.4" stroke-linecap="round"/><rect x="6" y="17" width="9" height="9" rx="2" fill="#415187"/><path d="M8 19.5h5v4H8z" fill="none" stroke="#a9b4d6" stroke-width="1.3"/><rect x="17" y="17" width="9" height="9" rx="2" fill="#415187"/><path d="M19 19.5h5M19 22h5M19 24.3h3" stroke="#a9b4d6" stroke-width="1.2" stroke-linecap="round"/></svg>
+      <div>
+        <div class="brand-title">Tidyverse</div>
+        <div class="brand-sub">Introduction to R, part 2: reading, filtering and plotting data</div>
+      </div>
+    </a>
+    <div class="spacer"></div>
+    <div class="progress-wrap" title="The steps you have done and the questions you have answered (saved in this browser)"><span class="progress-label">0% done</span><div class="progress"><i></i></div></div>
+    <span class="store-status" id="storeStatus" title="Your files are saved in this browser, on this computer"></span>
+    <button class="btn" id="userBtn" type="button" title="Your name, as it appears on your certificates"><svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span class="user-name">Your name</span></button>
+    <button class="btn" id="projectBtn" type="button" title="Download all your files, add files, or start afresh"><svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v1H7l-4 9z"/><path d="M3 19l3.5-8H22l-3.5 8z"/></svg><span>My files</span></button>
+    <button class="btn" id="answersBtn" type="button"><svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></svg><span>My answers</span></button>
+    <button class="btn" id="helpBtn" type="button" title="How this page works"><svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.2 9a2.9 2.9 0 0 1 5.6 1c0 2-2.8 2.6-2.8 4M12 17.5h.01"/></svg><span>Help</span></button>
+    <button class="btn" id="fullBtn" type="button" title="Full screen"><span>Full screen</span></button>
+  </header>
+
+  <div class="main">
+    <aside class="tut" id="tut" aria-label="Instructions">
+      <nav class="ch-nav" aria-label="Chapters"></nav>
+<!--CHAPTERS-->
+<section class="chapter" id="start" data-num="0" data-title="Start here" data-bench="rstudio">
+  <h1>Welcome to the tidyverse</h1>
+  <div class="meta-row"><span class="pill time">≈ 15 min</span></div>
+  <p class="lede">The tidyverse is a collection of R packages for reading, tidying, transforming and plotting data, all designed to work together. This course builds on R basics, so if you haven’t done that course yet, do it first.</p>
+
+<h2 id="t-what">What the tidyverse is</h2>
+<p>R comes with everything you need to work with data, but over the years its functions have grown up in different styles, with different names and orders of arguments for similar jobs. The <b>tidyverse</b> is a collection of packages that share a single design. Data are kept in tibbles, laid out in a consistent (“tidy”) way, and almost every function takes a tibble as its first argument and gives you a tibble back, so that the functions fit together. The core packages are:</p>
+<div class="table"><table class="plain"><thead><tr><th>Package</th><th>What it is for</th></tr></thead><tbody><tr><td><b>tibble</b></td><td>Tibbles, the tidyverse’s tables of data</td></tr><tr><td><b>readr</b></td><td>Reading data from text files into tibbles, and writing tibbles to files</td></tr><tr><td><b>tidyr</b></td><td>Tidying data, so that it is laid out in the right shape</td></tr><tr><td><b>dplyr</b></td><td>Choosing, filtering, changing and summarising data</td></tr><tr><td><b>ggplot2</b></td><td>Drawing plots and graphs</td></tr></tbody></table></div>
+<p>There are a few more, such as <b>stringr</b> for working with text, <b>forcats</b> for factors and <b>lubridate</b> for dates, which you won’t need in this course.</p>
+
+<h2 id="t-packages">Installing and loading packages</h2>
+<p>A <b>package</b> is a bundle of functions (and sometimes data) that adds to what R can do. There are two steps to using one:</p>
+<ul>
+<li><code>install.packages("tidyverse")</code> downloads the package and installs it. You only need to do this once: on your own computer it stays installed, and here it is kept in your browser for the next time you come back.</li>
+<li><code>library(tidyverse)</code> loads the package into R’s memory, so that you can use its functions. You need to do this in every new R session: each time you start RStudio, restart R, or come back to this course.</li>
+</ul>
+<p>When it loads, the tidyverse tells you which packages it has attached, and their versions. It also lists some <b>conflicts</b>, such as <code>dplyr::filter() masks stats::filter()</code>. This means that two packages have a function with the same name, and that, from now on, <code>filter</code> means the one from dplyr. That is what you want, so you can ignore the message. If you ever need the other one, you can name its package, as in <code>stats::filter()</code>.</p>
+
+<h2 id="t-how">How this course works</h2>
+<p>This course works in the same way as R basics. The steps of each activity tick themselves when R sees that you have done them (or you can tick them yourself), questions with a <b>Check</b> button are marked straight away, and <b>Show answer</b> appears once you have had a go at a question. Parts marked <b>If you have time</b> don’t count towards your certificate. When you have done everything else, the last chapter has your certificate, with the name you give below.</p>
+<p>Most of the steps in this course ask you to write some R yourself, and the text before each activity shows you examples of what you need.</p>
+<div class="callout concept">
+  <div class="co-t">Keep your commands in a script</div>
+  <p>Whenever R starts again (when you come back to the course, or restart R), it starts afresh: the tidyverse isn’t loaded, the working directory is your home folder, and none of your data have been read in. If you keep your commands in a script as you go, starting with <code>library(tidyverse)</code>, you can get back to where you were by clicking <b>Source</b> at the top of the script, which runs the whole of it.</p>
+</div>
+<div class="callout warn">
+  <div class="co-t">AI tools and your data</div>
+  <p>The <b>AI</b> tab has an AI assistant that you can ask about R, if you have a key for an AI service. Anything you type into it is sent to an AI company. Never paste personal data or patient data into it, or into any other AI tool.</p>
+</div>
+<div class="activity">
+  <div class="act-t">Get ready</div>
+  <ol class="steps">
+    <li data-task="t-name" data-check="named">Add your name for your certificate (if you did R basics in this browser, it is already there): <button class="do" type="button" data-student-name="1">Add your name</button></li>
+    <li data-task="t-script" data-auto="rstudio:saved path~tidyverse">Start a new script (File ▸ New File ▸ <b>R Script</b>) and save it as <code>tidyverse.R</code>. Write the commands from this course in it as you go.</li>
+    <li data-task="t-install" data-auto="rstudio:installed" data-check="installed:tidyverse">Install the tidyverse: <code>install.packages(&quot;tidyverse&quot;)</code> <button class="do showme" type="button" data-rs-type="install.packages(&quot;tidyverse&quot;)">show me</button>. This takes about half a minute the first time.</li>
+    <li data-task="t-library" data-rcheck="&quot;package:tidyverse&quot; %in% search()">Load it with <code>library(tidyverse)</code> <button class="do showme" type="button" data-rs-type="library(tidyverse)">show me</button>, and read the messages it gives you. The first time, this takes about another half a minute.</li>
+  </ol>
+</div>
+
+</section>
+
+<section class="chapter" id="reading" data-num="1" data-title="Reading files" data-bench="rstudio" hidden>
+  <h1>Reading data from files</h1>
+  <div class="meta-row"><span class="pill time">≈ 25 min</span></div>
+  <p class="lede">Most data reach R in a file. readr, one of the packages of the tidyverse, reads files of data into tibbles, and it tells you how it has interpreted each column.</p>
+
+<h2 id="rd-readr">readr</h2>
+<p>readr has a function for each of the common kinds of text file of data, and functions that write tibbles back out to files:</p>
+<div class="table"><table class="plain"><thead><tr><th>Function</th><th>What it does</th></tr></thead><tbody><tr><td><code>read_csv("file.csv")</code></td><td>reads a file of comma-separated values</td></tr><tr><td><code>read_tsv("file.txt")</code></td><td>reads a file of tab-separated values (often ending in <code>.txt</code> or <code>.tsv</code>)</td></tr><tr><td><code>write_csv(data, "file.csv")</code></td><td>writes a tibble to a file of comma-separated values</td></tr><tr><td><code>write_tsv(data, "file.txt")</code></td><td>writes a tibble to a file of tab-separated values</td></tr></tbody></table></div>
+<p>Like any other function, <code>read_csv()</code> only gives you the data: it doesn’t keep them for you. To work with the data afterwards, store them in an object, as in <code>child &lt;- read_csv("Child_Variants.csv")</code>.</p>
+
+<h2 id="rd-paths">File paths and the working directory</h2>
+<p>A <b>file path</b> tells R where a file is. <code>~/data/small_file.txt</code> is the file <code>small_file.txt</code> in the <code>data</code> folder of your home folder, which is what <code>~</code> stands for. You can give R the full path of a file every time, but it soon becomes tedious. Instead, you can set R’s <b>working directory</b>: the folder in which R looks for files, unless you tell it otherwise. Once it is set, the name of a file in that folder is enough.</p>
+<ul>
+<li><code>getwd()</code> tells you what the working directory is, and <code>setwd("~/data")</code> changes it to your <code>data</code> folder.</li>
+<li>In RStudio, you can also choose Session ▸ <b>Set Working Directory</b> ▸ <b>Choose Directory…</b>, or go to the folder in the Files pane and choose <b>More</b> ▸ <b>Set As Working Directory</b>. RStudio shows you the <code>setwd()</code> command it runs, which you can copy into your script.</li>
+</ul>
+<p>RStudio can also fill in file names for you. Type <code>read_tsv("")</code>, put the cursor between the quotes, and press <kbd>Tab</kbd>: RStudio lists the files in the working directory, and you can pick one rather than typing its name (and perhaps mistyping it).</p>
+
+<h2 id="rd-spec">What readr tells you</h2>
+<p>When it reads a file, readr guesses what type of data each column holds, and it tells you what it decided. Try it with a small file of seven people, giving its full path, because you haven’t set the working directory yet: <code>trumpton &lt;- read_tsv(&quot;~/data/trumpton.txt&quot;)</code> <button class="do showme" type="button" data-rs-type="trumpton &lt;- read_tsv(&quot;~/data/trumpton.txt&quot;)">show me</button></p>
+<div class="rout"><pre>&gt; trumpton &lt;- read_tsv(&quot;~/data/trumpton.txt&quot;)
+Rows: 7 Columns: 5
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: &quot;\t&quot;
+chr (2): LastName, FirstName
+dbl (3): Age, Weight, Height
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+&gt; trumpton
+# A tibble: 7 × 5
+  LastName FirstName   Age Weight Height
+  &lt;chr&gt;    &lt;chr&gt;     &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;
+1 Hugh     Chris        26     90    175
+2 Pew      Adam         32    102    183
+3 Barney   Daniel       18     88    168
+4 McGrew   Chris        48     97    155
+5 Cuthbert Carl         28     91    188
+6 Dibble   Liam         35     94    145
+7 Grub     Doug         31     89    164</pre></div>
+<p><code>chr</code> means character (text), and <code>dbl</code> means a number (it is short for <em>double</em>, which is how computers store numbers with decimal places). Always check readr’s guesses: a column of numbers that has been read as <code>chr</code> usually means that something in the column isn’t a number, such as a word, or a comma used as a decimal point. When you print a tibble, you see the type of each column under its name, and only the first ten rows; <code>View()</code>, or a click on the tibble in the Environment pane, shows you all of it.</p>
+<p>As in R basics, <code>$</code> takes a single column out of a tibble, as a vector, so that you can give it to functions such as <code>mean()</code>:</p>
+<div class="rout"><pre>&gt; mean(trumpton$Height)
+[1] 168.2857</pre></div>
+<div class="activity">
+  <div class="act-t">Read some files</div>
+  <ol class="steps">
+    <li data-task="rd-wd" data-rcheck="basename(getwd()) == &quot;data&quot;">Set the working directory to your <code>data</code> folder.</li>
+    <li data-task="rd-small" data-rcheck="any(vapply(ls(globalenv()), function(nm) { o &lt;- get(nm, envir = globalenv()); is.data.frame(o) &amp;&amp; nrow(o) == 40 &amp;&amp; all(c(&quot;Sample&quot;, &quot;Length&quot;, &quot;Category&quot;) %in% names(o)) }, logical(1)))">Read <code>small_file.txt</code>, which is a tab-separated file, into a new tibble called <code>small</code>. Use <kbd>Tab</kbd> to fill in the name of the file.</li>
+    <li data-task="rd-view" data-auto="r:view kind=rstudio nrow=40">View <code>small</code>, and check that the types that readr guessed for its columns make sense.</li>
+    <li data-task="rd-median" data-rcheck="(function(v) { isTRUE(all.equal(v, 6.227664, tolerance = 1e-6)) })(.Last.value)">Find the median of the log2 of the lengths in <code>small</code>. Use <code>$</code> to take out the <code>Length</code> column, <code>log2()</code> to transform the values, and <code>median()</code> to find the median of the result.</li>
+    <li data-task="rd-child" data-rcheck="any(vapply(ls(globalenv()), function(nm) { o &lt;- get(nm, envir = globalenv()); is.data.frame(o) &amp;&amp; nrow(o) == 25822 &amp;&amp; all(c(&quot;CHR&quot;, &quot;POS&quot;, &quot;dbSNP&quot;, &quot;REF&quot;, &quot;ALT&quot;, &quot;QUAL&quot;, &quot;GENE&quot;, &quot;MutantReadPercent&quot;) %in% names(o)) }, logical(1)))">Read <code>Child_Variants.csv</code>, which is a file of comma-separated values, into a tibble called <code>child</code>.</li>
+    <li data-task="rd-print" data-auto="r:view kind=rstudio nrow=25822">Print <code>child</code> in the Console to see what it looks like, and then open it in the viewer by clicking on it in the Environment pane.</li>
+    <li data-task="rd-mean" data-rcheck="(function(v) { isTRUE(all.equal(v, 24.11675, tolerance = 1e-6)) })(.Last.value)">Calculate the mean and the standard deviation of the <code>MutantReadPercent</code> column of <code>child</code>.</li>
+  </ol>
+</div>
+<div class="q" data-q="rd-q-median" data-accept="^6\.2[23]\d*$" data-placeholder="A number">
+  <div class="q-text">What is the median of the log2 of the lengths?</div>
+  <div class="q-model">6.227664, from <code>median(log2(small$Length))</code>.</div>
+</div>
+<div class="q" data-q="rd-q-mean" data-accept="^59\.88?\d*$||^59\.9$" data-placeholder="A number">
+  <div class="q-text">What is the mean of the MutantReadPercent column?</div>
+  <div class="q-model">59.88219, from <code>mean(child$MutantReadPercent)</code>.</div>
+</div>
+<div class="q" data-q="rd-q-sd" data-accept="^24\.1[12]?\d*$" data-placeholder="A number">
+  <div class="q-text">And its standard deviation?</div>
+  <div class="q-model">24.11675, from <code>sd(child$MutantReadPercent)</code>.</div>
+</div>
+<div class="q" data-q="rd-q-type" data-type="mcq">
+  <div class="q-text">readr tells you <code>chr (6): CHR, dbSNP, REF, ALT, GENE, ENST</code>. Why has it read the column <code>CHR</code>, the chromosome, as text rather than as numbers?</div>
+  <div class="mcq"><label data-correct data-why="One value that isn’t a number is enough to make readr read the whole column as text. Here that is the right decision: a chromosome is a name, even when it looks like a number."><input type="radio"> Because some chromosomes are called X, Y or MT, which aren’t numbers</label><label data-why="readr read POS, QUAL and the other numeric columns as numbers (dbl)."><input type="radio"> Because readr reads every column as text</label><label data-why="Everything in a CSV file is written as text, but readr turns columns that hold only numbers into numbers."><input type="radio"> Because CSV files can only hold text</label></div>
+</div>
+
+</section>
+
+<section class="chapter" id="tidy" data-num="2" data-title="Tidy data" data-bench="rstudio" hidden>
+  <h1>Tidy data</h1>
+  <div class="meta-row"><span class="pill time">≈ 10 min</span></div>
+  <p class="lede">A table of data can often be laid out in more than one way. The tidyverse has a clear opinion about which way is best, and its functions are designed around it.</p>
+
+<p>Think of a simple experiment, in which two genes (ABC1 and DEF1) are measured in two genotypes (WT and KO), with three replicates of each. Here are the results in <b>wide</b> format, with a row for each gene:</p>
+<div class="table"><table class="plain"><thead><tr><th>Gene</th><th>WT_1</th><th>WT_2</th><th>WT_3</th><th>KO_1</th><th>KO_2</th><th>KO_3</th></tr></thead><tbody><tr><td>ABC1</td><td>8.86</td><td>4.18</td><td>8.90</td><td>4.00</td><td>14.52</td><td>13.39</td></tr><tr><td>DEF1</td><td>29.60</td><td>41.22</td><td>36.15</td><td>11.18</td><td>16.68</td><td>1.64</td></tr></tbody></table></div>
+<p>This table is compact and easy to read, and you can see the measurements of each gene at a glance. But the genotype and the replicate of each value are hidden in the names of the columns, and the values are spread over six columns. If you wanted to record something else about each sample, such as the batch it was processed in, there would be nowhere obvious to put it.</p>
+<p>Here are the same results in <b>long</b> format:</p>
+<div class="table"><table class="plain"><thead><tr><th>Gene</th><th>Genotype</th><th>Replicate</th><th>Value</th></tr></thead><tbody><tr><td>ABC1</td><td>WT</td><td>1</td><td>8.86</td></tr><tr><td>ABC1</td><td>WT</td><td>2</td><td>4.18</td></tr><tr><td>ABC1</td><td>WT</td><td>3</td><td>8.90</td></tr><tr><td>ABC1</td><td>KO</td><td>1</td><td>4.00</td></tr><tr><td>ABC1</td><td>KO</td><td>2</td><td>14.52</td></tr><tr><td>ABC1</td><td>KO</td><td>3</td><td>13.39</td></tr><tr><td>DEF1</td><td>WT</td><td>1</td><td>29.60</td></tr><tr><td>DEF1</td><td>WT</td><td>2</td><td>41.22</td></tr><tr><td>DEF1</td><td>WT</td><td>3</td><td>36.15</td></tr><tr><td>DEF1</td><td>KO</td><td>1</td><td>11.18</td></tr><tr><td>DEF1</td><td>KO</td><td>2</td><td>16.68</td></tr><tr><td>DEF1</td><td>KO</td><td>3</td><td>1.64</td></tr></tbody></table></div>
+<p>This is more verbose, because values such as the gene names are repeated. But the genotype and the replicate are now columns of their own, all the measurements are in a single column, and recording the batch of each sample would simply mean adding a <code>Batch</code> column.</p>
+
+<h2 id="td-rules">What makes data tidy</h2>
+<p>The long format is what the tidyverse calls <b>tidy</b> data:</p>
+<ul>
+<li>each variable has its own column,</li>
+<li>each observation has its own row, and</li>
+<li>each value has its own cell.</li>
+</ul>
+<p>The functions of the tidyverse expect data to be tidy. For a plot of the values coloured by genotype, for example, ggplot2 needs a column that says what the genotype of each value is, and the wide table doesn’t have one. Data often arrive in wide format, because that is how people lay out tables for reading, and the tidyr package has functions for converting between the two formats: <code>pivot_longer()</code> and <code>pivot_wider()</code>.</p>
+<div class="q" data-q="td-q-batch" data-type="mcq">
+  <div class="q-text">In the long format, how would you record the batch in which each sample was processed?</div>
+  <div class="mcq"><label data-correct data-why="In tidy data each variable has its own column, so a new variable means a new column."><input type="radio"> Add a column called <code>Batch</code></label><label data-why="A row is a single observation (one measurement, here). The batch is a property of each observation, so it needs a column."><input type="radio"> Add a new row for each batch</label><label data-why="That is how the wide format hides information in its column names, which is exactly what tidy data avoids."><input type="radio"> Put the batch into the names of the columns, as in WT_1_batch2</label></div>
+</div>
+<div class="q" data-q="td-q-tidy" data-type="mcq">
+  <div class="q-text">A table has one row for each patient, with the columns <code>Patient</code>, <code>Monday</code>, <code>Tuesday</code> and <code>Wednesday</code>, which hold the patient’s blood pressure on each day. Is it tidy?</div>
+  <div class="mcq"><label data-correct data-why="The days are hidden in the column names. A tidy table would have a row for each patient on each day."><input type="radio"> No: the day is a variable, so a tidy version would have the columns Patient, Day and BloodPressure</label><label data-why="Each row holds three observations (three days), and the day itself isn’t in a column of its own."><input type="radio"> Yes: each patient has a row of their own</label><label data-why="Tidiness is about how the table is laid out, not about whether it is complete."><input type="radio"> Yes, as long as there are no missing values</label></div>
+</div>
+<div class="optional">
+  <div class="opt-t"><span class="opt-tag">If you have time</span> Making wide data long</div>
+  <p class="opt-note">This part is optional: it doesn’t count towards your certificate.</p>
+
+<p>Type in the wide table as a tibble, and then make it long with <code>pivot_longer()</code>. Its arguments say which columns to gather up (all except <code>Gene</code>), what to call the new columns that the old column names go into, how to split the old names (at the <code>_</code>), and what to call the column of values:</p>
+<div class="codefile rblock"><div class="cf-head"><span class="cf-name">R</span><span class="grow"></span><button class="do showme" type="button" data-rs-type="wide &lt;- tibble(
+  Gene = c(&quot;ABC1&quot;, &quot;DEF1&quot;),
+  WT_1 = c(8.86, 29.60), WT_2 = c(4.18, 41.22), WT_3 = c(8.90, 36.15),
+  KO_1 = c(4.00, 11.18), KO_2 = c(14.52, 16.68), KO_3 = c(13.39, 1.64)
+)">show me</button><button class="btn small" type="button" data-copy-code="1">Copy</button></div><pre class="codeblock">wide &lt;- tibble(
+  Gene = c(&quot;ABC1&quot;, &quot;DEF1&quot;),
+  WT_1 = c(8.86, 29.60), WT_2 = c(4.18, 41.22), WT_3 = c(8.90, 36.15),
+  KO_1 = c(4.00, 11.18), KO_2 = c(14.52, 16.68), KO_3 = c(13.39, 1.64)
+)</pre></div>
+<div class="rout"><pre>&gt; pivot_longer(wide, -Gene, names_to = c(&quot;Genotype&quot;, &quot;Replicate&quot;), names_sep = &quot;_&quot;, values_to = &quot;Value&quot;)
+# A tibble: 12 × 4
+   Gene  Genotype Replicate Value
+   &lt;chr&gt; &lt;chr&gt;    &lt;chr&gt;     &lt;dbl&gt;
+ 1 ABC1  WT       1          8.86
+ 2 ABC1  WT       2          4.18
+ 3 ABC1  WT       3          8.9
+ 4 ABC1  KO       1          4
+ 5 ABC1  KO       2         14.5
+ 6 ABC1  KO       3         13.4
+ 7 DEF1  WT       1         29.6
+ 8 DEF1  WT       2         41.2
+ 9 DEF1  WT       3         36.2
+10 DEF1  KO       1         11.2
+11 DEF1  KO       2         16.7
+12 DEF1  KO       3          1.64</pre></div>
+<div class="activity">
+  <div class="act-t">Tidy it</div>
+  <ol class="steps">
+    <li data-task="td-long" data-rcheck="(function(v) { is.data.frame(v) &amp;&amp; nrow(v) == 12 &amp;&amp; all(c(&quot;Gene&quot;, &quot;Genotype&quot;, &quot;Replicate&quot;, &quot;Value&quot;) %in% names(v)) })(.Last.value)">Make the wide table long, as above.</li>
+  </ol>
+</div>
+
+</div>
+
+</section>
+
+<section class="chapter" id="filter" data-num="3" data-title="Choosing columns and rows" data-bench="rstudio" hidden>
+  <h1>Choosing columns and rows</h1>
+  <div class="meta-row"><span class="pill time">≈ 30 min</span></div>
+  <p class="lede">dplyr, the tidyverse’s package for manipulating data, has a function for choosing columns, <code>select()</code>, and another for choosing rows, <code>filter()</code>.</p>
+
+<p>All of dplyr’s functions take a tibble as their first argument, and they all give you back a new tibble. The tibble you started with isn’t changed, so if you want to keep a result, store it in an object. Inside the functions, you refer to the columns of the tibble just by their names, without quotes and without <code>$</code>.</p>
+<p>These examples use <code>trumpton</code>, the small tibble from the last chapter. If it isn’t in your Environment pane, read it in again: <code>trumpton &lt;- read_tsv(&quot;~/data/trumpton.txt&quot;)</code> <button class="do showme" type="button" data-rs-type="trumpton &lt;- read_tsv(&quot;~/data/trumpton.txt&quot;)">show me</button></p>
+<div class="rout"><pre>&gt; trumpton
+# A tibble: 7 × 5
+  LastName FirstName   Age Weight Height
+  &lt;chr&gt;    &lt;chr&gt;     &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;
+1 Hugh     Chris        26     90    175
+2 Pew      Adam         32    102    183
+3 Barney   Daniel       18     88    168
+4 McGrew   Chris        48     97    155
+5 Cuthbert Carl         28     91    188
+6 Dibble   Liam         35     94    145
+7 Grub     Doug         31     89    164</pre></div>
+
+<h2 id="fl-select">Choosing columns with select()</h2>
+<p>Give <code>select()</code> the names of the columns you want, in the order you want them. You can also give their positions, or put a minus sign in front of a column that you want to leave out:</p>
+<div class="rout"><pre>&gt; select(trumpton, FirstName, LastName, Weight)
+# A tibble: 7 × 3
+  FirstName LastName Weight
+  &lt;chr&gt;     &lt;chr&gt;     &lt;dbl&gt;
+1 Chris     Hugh         90
+2 Adam      Pew         102
+3 Daniel    Barney       88
+4 Chris     McGrew       97
+5 Carl      Cuthbert     91
+6 Liam      Dibble       94
+7 Doug      Grub         89
+&gt; select(trumpton, 2, 4)
+# A tibble: 7 × 2
+  FirstName Weight
+  &lt;chr&gt;      &lt;dbl&gt;
+1 Chris         90
+2 Adam         102
+3 Daniel        88
+4 Chris         97
+5 Carl          91
+6 Liam          94
+7 Doug          89
+&gt; select(trumpton, -LastName)
+# A tibble: 7 × 4
+  FirstName   Age Weight Height
+  &lt;chr&gt;     &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;
+1 Chris        26     90    175
+2 Adam         32    102    183
+3 Daniel       18     88    168
+4 Chris        48     97    155
+5 Carl         28     91    188
+6 Liam         35     94    145
+7 Doug         31     89    164</pre></div>
+
+<h2 id="fl-filter">Choosing rows with filter()</h2>
+<p><code>filter()</code> keeps the rows for which a test is TRUE. The tests are the comparisons you used with vectors in R basics; text goes in quotes, as always.</p>
+<div class="table"><table class="plain"><thead><tr><th>Test</th><th>Or</th><th>Meaning</th></tr></thead><tbody><tr><td><code>Height &gt; 170</code></td><td><code>Height &lt; 170</code></td><td>greater than, less than</td></tr><tr><td><code>Height &gt;= 170</code></td><td><code>Height &lt;= 180</code></td><td>greater than or equal to, less than or equal to</td></tr><tr><td><code>Age == 26</code></td><td><code>FirstName == "Chris"</code></td><td>equal to</td></tr><tr><td><code>Age != 26</code></td><td><code>FirstName != "Chris"</code></td><td>not equal to</td></tr></tbody></table></div>
+<div class="rout"><pre>&gt; filter(trumpton, Height &gt;= 170)
+# A tibble: 3 × 5
+  LastName FirstName   Age Weight Height
+  &lt;chr&gt;    &lt;chr&gt;     &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;
+1 Hugh     Chris        26     90    175
+2 Pew      Adam         32    102    183
+3 Cuthbert Carl         28     91    188
+&gt; filter(trumpton, FirstName == &quot;Chris&quot;)
+# A tibble: 2 × 5
+  LastName FirstName   Age Weight Height
+  &lt;chr&gt;    &lt;chr&gt;     &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;
+1 Hugh     Chris        26     90    175
+2 McGrew   Chris        48     97    155</pre></div>
+<p>A test can also use a function to transform a column first. In this table, <code>difference</code> can be large in either direction, and <code>abs()</code>, which gives the absolute value of a number (its size, ignoring its sign), finds the rows where the difference is more than 5 either way:</p>
+<div class="rout"><pre>&gt; transform.data &lt;- read_tsv(&quot;transform_data.txt&quot;, show_col_types = FALSE)
+&gt; transform.data
+# A tibble: 10 × 3
+       WT      KO difference
+    &lt;dbl&gt;   &lt;dbl&gt;      &lt;dbl&gt;
+ 1 -5.11   -3.29       1.81
+ 2  1.12   -1.85      -2.97
+ 3 -3.99   -3.77       0.222
+ 4 -4.18   -2.46       1.72
+ 5 -1.93  -10.0       -8.10
+ 6 -8.69   -2.38       6.31
+ 7 -0.670   2.73       3.40
+ 8 -1.15   -2.59      -1.43
+ 9 -1.98    1.83       3.80
+10 -1.06    0.372      1.43
+&gt; filter(transform.data, abs(difference) &gt; 5)
+# A tibble: 2 × 3
+     WT     KO difference
+  &lt;dbl&gt;  &lt;dbl&gt;      &lt;dbl&gt;
+1 -1.93 -10.0       -8.10
+2 -8.69  -2.38       6.31</pre></div>
+<p>(<code>show_col_types = FALSE</code> tells <code>read_tsv()</code> not to print the column types.) You don’t need to save the results of the steps below, but do look at each one, to check that it has worked.</p>
+<div class="activity">
+  <div class="act-t">Filter the small file</div>
+  <ol class="steps">
+    <li data-task="fl-a" data-rcheck="(function(v) { is.data.frame(v) &amp;&amp; nrow(v) == 10 &amp;&amp; all(c(&quot;Category&quot;) %in% names(v)) &amp;&amp; all(v$Category == &quot;A&quot;) })(.Last.value)">From <code>small</code>, extract all the rows where the <code>Category</code> is A.</li>
+    <li data-task="fl-80" data-rcheck="(function(v) { is.data.frame(v) &amp;&amp; nrow(v) == 16 &amp;&amp; all(c(&quot;Length&quot;) %in% names(v)) &amp;&amp; all(v$Length &gt; 80) })(.Last.value)">Extract the samples with a Length of more than 80.</li>
+    <li data-task="fl-sample" data-rcheck="(function(v) { is.data.frame(v) &amp;&amp; nrow(v) == 40 &amp;&amp; identical(sort(names(v)), c(&quot;Category&quot;, &quot;Length&quot;)) })(.Last.value)">Remove the <code>Sample</code> column, to leave just <code>Length</code> and <code>Category</code>.</li>
+  </ol>
+</div>
+<div class="activity">
+  <div class="act-t">Filter the child’s variants</div>
+  <ol class="steps">
+    <li data-task="fl-mt" data-rcheck="(function(v) { is.data.frame(v) &amp;&amp; nrow(v) == 6 &amp;&amp; all(c(&quot;CHR&quot;) %in% names(v)) &amp;&amp; all(v$CHR == &quot;MT&quot;) })(.Last.value)">From <code>child</code>, extract the variants on the mitochondrial chromosome, which is called MT.</li>
+    <li data-task="fl-70" data-rcheck="(function(v) { is.data.frame(v) &amp;&amp; nrow(v) == 9976 &amp;&amp; all(c(&quot;MutantReadPercent&quot;) %in% names(v)) &amp;&amp; all(v$MutantReadPercent &gt;= 70) })(.Last.value)">Extract the variants with a <code>MutantReadPercent</code> of 70 or more.</li>
+    <li data-task="fl-qual" data-rcheck="(function(v) { is.data.frame(v) &amp;&amp; nrow(v) == 22578 &amp;&amp; all(c(&quot;QUAL&quot;) %in% names(v)) &amp;&amp; all(v$QUAL == 200) })(.Last.value)">Extract the variants with a quality of exactly 200. (Look at the data to find the name of the column.)</li>
+    <li data-task="fl-gene" data-rcheck="(function(v) { is.data.frame(v) &amp;&amp; nrow(v) == 17 &amp;&amp; all(c(&quot;GENE&quot;) %in% names(v)) &amp;&amp; all(v$GENE == &quot;IGFN1&quot;) })(.Last.value)">Extract all the variants in the gene IGFN1.</li>
+    <li data-task="fl-cols" data-rcheck="(function(v) { is.data.frame(v) &amp;&amp; nrow(v) == 25822 &amp;&amp; ncol(v) == 9 &amp;&amp; !any(c(&quot;ENST&quot;, &quot;dbSNP&quot;) %in% names(v)) })(.Last.value)">Remove the <code>ENST</code> and <code>dbSNP</code> columns.</li>
+  </ol>
+</div>
+<div class="q" data-q="fl-q-80" data-accept="^16$" data-placeholder="A number">
+  <div class="q-text">How many samples in <code>small</code> have a Length of more than 80?</div>
+  <div class="q-model">16, from <code>filter(small, Length &gt; 80)</code>: the tibble it prints has 16 rows.</div>
+</div>
+<div class="q" data-q="fl-q-gene" data-accept="^17$" data-placeholder="A number">
+  <div class="q-text">How many of the child’s variants are in IGFN1?</div>
+  <div class="q-model">17, from <code>filter(child, GENE == &quot;IGFN1&quot;)</code>.</div>
+</div>
+<div class="q" data-q="fl-q-which" data-type="mcq">
+  <div class="q-text">You want only the variants whose quality is 200. Which function do you need?</div>
+  <div class="mcq"><label data-correct data-why="filter() chooses rows, and each variant is a row."><input type="radio"> <code>filter()</code></label><label data-why="select() chooses columns. Here you want to keep some of the rows (the variants) and all of the columns."><input type="radio"> <code>select()</code></label></div>
+</div>
+<div class="q" data-q="fl-q-quotes" data-type="mcq">
+  <div class="q-text">Why does <code>filter(small, Category == A)</code> give an error?</div>
+  <div class="mcq"><label data-correct data-why="R tells you that it can’t find an object called A. The right command is filter(small, Category == &amp;quot;A&amp;quot;)."><input type="radio"> A is text, so it needs quotes: without them, R looks for a column or an object called A</label><label data-why="A single = names an argument. A test for equality always needs ==."><input type="radio"> Because a test inside filter() needs = rather than ==</label><label data-why="The column is called Category, so that part is right. The problem is the missing quotes around A."><input type="radio"> Because the column is called category, with a small c</label></div>
+</div>
+<div class="optional">
+  <div class="opt-t"><span class="opt-tag">If you have time</span> Fix a broken script</div>
+  <p class="opt-note">This part is optional: it doesn’t count towards your certificate.</p>
+
+<p>The file <code>data/broken_selects.R</code> is a short script that tries to do some of the things you have just done, but almost every line has a mistake in it. Open it in RStudio <button class="do showme" type="button" data-rs-open="data/broken_selects.R">open broken_selects.R</button>, and work through it a line at a time, fixing each line until it runs and gives the right result. Check the result of every line before you move on to the next.</p>
+<div class="activity">
+  <div class="act-t">Fix it</div>
+  <ol class="steps">
+    <li data-task="fl-fix" data-auto="rstudio:saved path~broken_selects">Fix every line of <code>broken_selects.R</code>, and save the script.</li>
+  </ol>
+</div>
+<div class="q" data-q="fl-q-fix">
+  <div class="q-text">What was wrong with each line?</div>
+  <div class="q-model">The path in <code>setwd()</code> is for someone else’s computer (here it should be <code>setwd(&quot;~/data&quot;)</code>); <code>Child_Variants.csv</code> is a CSV file, so it needs <code>read_csv()</code>, not <code>read_tsv()</code>; <code>Category==A</code> needs quotes around A; <code>select(small, length&gt;80)</code> should be <code>filter()</code>, because it chooses rows, and the column is <code>Length</code>, with a capital L; <code>select()</code> needs the tibble <code>small</code>, not the name of the file, as its first argument; and the tibble is called <code>child</code>, not <code>Child</code>.</div>
+</div>
+
+</div>
+
+</section>
+
+<section class="chapter" id="pipes" data-num="4" data-title="Pipes" data-bench="rstudio" hidden>
+  <h1>Combining steps with pipes</h1>
+  <div class="meta-row"><span class="pill time">≈ 25 min</span></div>
+  <p class="lede">Real questions usually take several steps: filter on one thing, then on another, then choose some columns. Pipes let you write those steps one after another, in the order in which they happen.</p>
+
+<p>Suppose you want to find the people in <code>trumpton</code> who are at least 170 cm tall and called Chris, and see just their age and weight. That takes three steps. One way to do it is to store the result of each step in an object, and use that object in the next step:</p>
+<div class="rout"><pre>&gt; filter(trumpton, Height &gt;= 170) -&gt; answer1
+&gt; filter(answer1, FirstName == &quot;Chris&quot;) -&gt; answer2
+&gt; select(answer2, Age, Weight)
+# A tibble: 1 × 2
+    Age Weight
+  &lt;dbl&gt;  &lt;dbl&gt;
+1    26     90</pre></div>
+<p>This works, but it leaves objects you don’t need (<code>answer1</code> and <code>answer2</code>) lying around in R’s memory, and it is hard to see what is going on.</p>
+
+<h2 id="pp-pipe">The pipe: %&gt;%</h2>
+<p>Every dplyr function takes a tibble as its first argument and gives you a tibble back. That means you can pass the result of one function straight into the next, without storing it. The <b>pipe</b>, <code>%&gt;%</code>, does exactly that: it takes whatever is on its left and gives it to the function on its right as that function’s first argument. These two commands are the same:</p>
+<div class="codefile rblock"><div class="cf-head"><span class="cf-name">R</span><span class="grow"></span><button class="btn small" type="button" data-copy-code="1">Copy</button></div><pre class="codeblock">select(trumpton, -LastName)
+trumpton %&gt;% select(-LastName)</pre></div>
+<p>So the three steps above become a single command, which you can read from top to bottom, saying “and then” for each <code>%&gt;%</code>: take <code>trumpton</code>, and then keep the people who are at least 170 cm tall, and then keep those called Chris, and then select their age and weight.</p>
+<div class="rout"><pre>&gt; trumpton %&gt;%
++   filter(Height &gt;= 170) %&gt;%
++   filter(FirstName == &quot;Chris&quot;) %&gt;%
++   select(Age, Weight)
+# A tibble: 1 × 2
+    Age Weight
+  &lt;dbl&gt;  &lt;dbl&gt;
+1    26     90</pre></div>
+<p>Writing each step on a line of its own makes a long command much easier to read. Put the <code>%&gt;%</code> at the end of each line rather than the start of the next, so that R knows the command carries on. In RStudio, <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>M</kbd> (<kbd>⌘</kbd>+<kbd>Shift</kbd>+<kbd>M</kbd> on a Mac) types a pipe for you. Depending on RStudio’s settings (Tools ▸ Global Options ▸ Code), it may type <code>|&gt;</code> instead: that is R’s own pipe, which works in the same way for everything in this course.</p>
+
+<h2 id="pp-and">Several tests at once</h2>
+<p>You can also give <code>filter()</code> several tests, separated by commas, and it keeps the rows for which all of them are TRUE. These two commands are the same as the two filters above:</p>
+<div class="codefile rblock"><div class="cf-head"><span class="cf-name">R</span><span class="grow"></span><button class="btn small" type="button" data-copy-code="1">Copy</button></div><pre class="codeblock">trumpton %&gt;% filter(Height &gt;= 170, FirstName == &quot;Chris&quot;)
+trumpton %&gt;% filter(Height &gt;= 170 &amp; FirstName == &quot;Chris&quot;)</pre></div>
+<p><code>&amp;</code> means “and”, <code>|</code> means “or”, and <code>!</code> means “not”. <code>%in%</code> tests whether a value is one of a set of values, so <code>filter(trumpton, FirstName %in% c("Chris", "Liam"))</code> keeps the people called Chris or Liam, and <code>filter(trumpton, !FirstName %in% c("Chris", "Liam"))</code> keeps everyone else.</p>
+<div class="activity">
+  <div class="act-t">Multi-stage filtering</div>
+  <ol class="steps">
+    <li data-task="pp-quality" data-rcheck="(function(v) { is.data.frame(v) &amp;&amp; nrow(v) == 3961 &amp;&amp; all(c(&quot;QUAL&quot;, &quot;COVERAGE&quot;, &quot;MutantReadPercent&quot;) %in% names(v)) &amp;&amp; all(v$QUAL == 200) &amp;&amp; all(v$COVERAGE &gt; 50) &amp;&amp; all(v$MutantReadPercent &gt; 70) })(.Last.value)">From <code>child</code>, extract the variants with a quality of 200, a coverage of more than 50, and a <code>MutantReadPercent</code> of more than 70.</li>
+    <li data-task="pp-chr" data-rcheck="(function(v) { is.data.frame(v) &amp;&amp; nrow(v) == 25345 &amp;&amp; all(c(&quot;CHR&quot;) %in% names(v)) &amp;&amp; !any(v$CHR %in% c(&quot;X&quot;, &quot;Y&quot;, &quot;MT&quot;)) })(.Last.value)">Remove all the variants on the X, Y and MT chromosomes.</li>
+    <li data-task="pp-dbsnp" data-rcheck="(function(v) { is.data.frame(v) &amp;&amp; nrow(v) == 23690 &amp;&amp; identical(names(v), c(&quot;CHR&quot;, &quot;POS&quot;)) })(.Last.value)">Show just the chromosome and position (<code>CHR</code> and <code>POS</code>) of the variants that have an ID in dbSNP. (Variants without an ID have a full stop, <code>.</code>, in the <code>dbSNP</code> column.)</li>
+  </ol>
+</div>
+<div class="q" data-q="pp-q-quality" data-accept="^3,?961$" data-placeholder="A number">
+  <div class="q-text">How many variants pass all three quality tests?</div>
+  <div class="q-model">3961, from <code>child %&gt;% filter(QUAL == 200, COVERAGE &gt; 50, MutantReadPercent &gt; 70)</code>.</div>
+</div>
+<div class="q" data-q="pp-q-dbsnp" data-accept="^23,?690$" data-placeholder="A number">
+  <div class="q-text">How many of the variants have an ID in dbSNP?</div>
+  <div class="q-model">23690, from <code>child %&gt;% filter(dbSNP != &quot;.&quot;) %&gt;% select(CHR, POS)</code>.</div>
+</div>
+<div class="q" data-q="pp-q-pipe" data-type="mcq">
+  <div class="q-text">What does <code>small %&gt;% filter(Length &gt; 80)</code> mean?</div>
+  <div class="mcq"><label data-correct data-why="The pipe makes what is on its left the first argument of the function on its right."><input type="radio"> The same as <code>filter(small, Length &gt; 80)</code></label><label data-why="%&amp;gt;% isn’t a percentage: it is the pipe."><input type="radio"> Keep the rows of <code>small</code> whose Length is more than 80 per cent of the largest</label><label data-why="A pipe doesn’t store anything. To keep the result, you would need to assign it, as in small80 &amp;lt;- small %&amp;gt;% filter(Length &amp;gt; 80)."><input type="radio"> Store the filtered rows in <code>small</code></label></div>
+</div>
+<div class="optional">
+  <div class="opt-t"><span class="opt-tag">If you have time</span> Transforming data in a filter</div>
+  <p class="opt-note">This part is optional: it doesn’t count towards your certificate.</p>
+
+<p>In R basics you used <code>nchar()</code>, which counts the characters in each piece of text, and <code>substr()</code>, which extracts part of a piece of text. Both work inside a filter.</p>
+<div class="activity">
+  <div class="act-t">Transform and filter</div>
+  <ol class="steps">
+    <li data-task="pp-del" data-rcheck="(function(v) { is.data.frame(v) &amp;&amp; nrow(v) == 602 &amp;&amp; all(c(&quot;REF&quot;) %in% names(v)) &amp;&amp; all(nchar(v$REF) &gt; 1) })(.Last.value)">Use <code>nchar()</code> on the <code>REF</code> column to select the variants that are deletions: those where the reference sequence is more than one base long.</li>
+    <li data-task="pp-q" data-rcheck="(function(v) { is.data.frame(v) &amp;&amp; nrow(v) == 30 &amp;&amp; all(c(&quot;GENE&quot;) %in% names(v)) &amp;&amp; all(substr(v$GENE, 1, 1) == &quot;Q&quot;) })(.Last.value)">Use <code>substr()</code> to find all the variants in genes whose names start with Q.</li>
+  </ol>
+</div>
+<div class="q" data-q="pp-q-del">
+  <div class="q-text">How many deletions are there, and how many variants in genes whose names start with Q?</div>
+  <div class="q-model">602 deletions, from <code>child %&gt;% filter(nchar(REF) &gt; 1)</code>, and 30 variants in genes starting with Q, from <code>child %&gt;% filter(substr(GENE, 1, 1) == &quot;Q&quot;)</code>.</div>
+</div>
+
+</div>
+
+</section>
+
+<section class="chapter" id="plots" data-num="5" data-title="Your first plots" data-bench="rstudio" hidden>
+  <h1>Your first plots with ggplot2</h1>
+  <div class="meta-row"><span class="pill time">≈ 25 min</span></div>
+  <p class="lede">ggplot2 is the tidyverse’s package for plots. It is powerful and flexible, and it works in the same way as the rest of the tidyverse: the data come in a tibble, in tidy format, as the first argument.</p>
+
+<h2 id="pl-how">How a ggplot is put together</h2>
+<p>Every plot in ggplot2 is built in the same way:</p>
+<ol>
+<li>Start with <code>ggplot()</code>, and give it the tibble that holds your data.</li>
+<li>Say which columns of the data should control which parts of the plot, with <code>aes()</code>. These are the <b>aesthetics</b>: the position along the x axis, the position along the y axis, the colour, the size, and so on.</li>
+<li>Add a <b>geometry</b> with <code>+</code>: the kind of plot you want, such as points, lines or bars.</li>
+<li>Add anything else you need, such as titles or labels, with more <code>+</code>.</li>
+</ol>
+<p>The geometries all have names that start with <code>geom_</code>:</p>
+<div class="table"><table class="plain"><thead><tr><th>Geometry</th><th>What it draws</th></tr></thead><tbody><tr><td><code>geom_point()</code></td><td>points: scatter plots and strip charts</td></tr><tr><td><code>geom_line()</code></td><td>line graphs</td></tr><tr><td><code>geom_boxplot()</code></td><td>box plots</td></tr><tr><td><code>geom_col()</code> and <code>geom_bar()</code></td><td>bar plots</td></tr><tr><td><code>geom_histogram()</code> and <code>geom_density()</code></td><td>distributions</td></tr></tbody></table></div>
+<p>These examples use a tibble of gene expression levels, from <code>expr_data.txt</code>. To try them yourself, read it in first: <code>expression &lt;- read_tsv(&quot;~/data/expr_data.txt&quot;)</code> <button class="do showme" type="button" data-rs-type="expression &lt;- read_tsv(&quot;~/data/expr_data.txt&quot;)">show me</button></p>
+<div class="rout"><pre>&gt; expression
+# A tibble: 12 × 4
+   Gene       WT     KO pValue
+   &lt;chr&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;
+ 1 Mia1     5.83  3.24  0.1
+ 2 Snrpa    8.59  5.02  0.001
+ 3 Itpkc    8.49  6.16  0.04
+ 4 Adck4    7.69  6.41  0.2
+ 5 Numbl    8.37  6.81  0.1
+ 6 Ltbp4    6.96 10.4   0.001
+ 7 Shkbp1   7.57  5.83  0.1
+ 8 Spnb4   10.7   9.38  0.2
+ 9 Blvrb    7.32  5.29  0.05
+10 Pgam1    0     0.285 0.5
+11 Sertad3  8.13  3.02  0.0001
+12 Sertad1  7.69  4.34  0.01  </pre></div>
+<p>To plot the expression in the KO samples against the expression in the WT samples, the tibble is <code>expression</code>, the aesthetics are <code>x = WT</code> and <code>y = KO</code>, and the geometry is points:</p>
+<div class="codefile rblock"><div class="cf-head"><span class="cf-name">R</span><span class="grow"></span><button class="do showme" type="button" data-rs-type="ggplot(expression, aes(x = WT, y = KO)) + geom_point()">show me</button><button class="btn small" type="button" data-copy-code="1">Copy</button></div><pre class="codeblock">ggplot(expression, aes(x = WT, y = KO)) + geom_point()</pre></div>
+<p>Change <code>geom_point()</code> to <code>geom_line()</code>, and the same data are drawn as a line instead. Because the tibble is the first argument of <code>ggplot()</code>, you can also pipe the data into it.</p>
+
+<h2 id="pl-aes">Fixed and mapped aesthetics</h2>
+<p>An aesthetic can be set in two ways. A <b>fixed</b> value is the same for every point: all the points red, say, or all of them size 4. You give fixed values to the geometry, outside <code>aes()</code>:</p>
+<div class="codefile rblock"><div class="cf-head"><span class="cf-name">R</span><span class="grow"></span><button class="do showme" type="button" data-rs-type="expression %&gt;%
+  ggplot(aes(x = WT, y = KO)) +
+  geom_point(colour = &quot;red2&quot;, size = 5)">show me</button><button class="btn small" type="button" data-copy-code="1">Copy</button></div><pre class="codeblock">expression %&gt;%
+  ggplot(aes(x = WT, y = KO)) +
+  geom_point(colour = &quot;red2&quot;, size = 5)</pre></div>
+<p>A <b>mapped</b> aesthetic comes from a column of your data: points coloured by genotype, or sized by the number of observations. Mappings go inside <code>aes()</code>, as in <code>aes(x = WT, y = KO, colour = genotype)</code>, and ggplot2 adds a legend to explain them. A mapping can be categorical (a column of text, which gives a separate colour for each value) or quantitative (a column of numbers, which gives a scale of colours from low to high).</p>
+<div class="callout concept">
+  <div class="co-t">The + goes at the end of the line</div>
+  <p>Like the pipe, the <code>+</code> that adds a layer must go at the end of a line, not at the start of the next one. If a line ends without one, R thinks the command has finished there: it draws the plot without the layer, and then complains about the <code>+</code> on the next line.</p>
+</div>
+<div class="activity">
+  <div class="act-t">Your first ggplot</div>
+  <ol class="steps">
+    <li data-task="pl-read" data-rcheck="any(vapply(ls(globalenv()), function(nm) { o &lt;- get(nm, envir = globalenv()); is.data.frame(o) &amp;&amp; nrow(o) == 27 &amp;&amp; all(c(&quot;Species&quot;, &quot;Category&quot;, &quot;body&quot;, &quot;brain&quot;, &quot;log.brain&quot;, &quot;log.body&quot;) %in% names(o)) }, logical(1)))">Read <code>brain_bodyweight.txt</code>, a tab-separated file, into a tibble called <code>brain</code>. It holds the weights of the brains and bodies of 27 species of animal.</li>
+    <li data-task="pl-scatter" data-rcheck="(function(v) { inherits(v, &quot;ggplot&quot;) &amp;&amp; any(vapply(v$layers, function(l) inherits(l$geom, &quot;GeomPoint&quot;) &amp;&amp; any(vapply(list(v$mapping, l$mapping), function(m) !is.null(m$x) &amp;&amp; identical(rlang::as_label(m$x), &quot;brain&quot;), logical(1))) &amp;&amp; any(vapply(list(v$mapping, l$mapping), function(m) !is.null(m$y) &amp;&amp; identical(rlang::as_label(m$y), &quot;body&quot;), logical(1))), logical(1))) &amp;&amp; !inherits(try(ggplot2::ggplot_build(v), silent = TRUE), &quot;try-error&quot;) })(.Last.value)">Draw a scatter plot (with <code>geom_point()</code>) of the weights of the brains and bodies, with <code>brain</code> on the x axis and <code>body</code> on the y axis.</li>
+    <li data-task="pl-blue" data-rcheck="(function(v) { inherits(v, &quot;ggplot&quot;) &amp;&amp; any(vapply(v$layers, function(l) inherits(l$geom, &quot;GeomPoint&quot;) &amp;&amp; any(vapply(list(v$mapping, l$mapping), function(m) !is.null(m$x) &amp;&amp; identical(rlang::as_label(m$x), &quot;brain&quot;), logical(1))) &amp;&amp; any(vapply(list(v$mapping, l$mapping), function(m) !is.null(m$y) &amp;&amp; identical(rlang::as_label(m$y), &quot;body&quot;), logical(1))) &amp;&amp; (function(p) !is.null(p) &amp;&amp; isTRUE(identical(p, &quot;blue2&quot;)))(l$aes_params$colour) &amp;&amp; (function(p) !is.null(p) &amp;&amp; isTRUE(p == 3))(l$aes_params$size), logical(1))) &amp;&amp; !inherits(try(ggplot2::ggplot_build(v), silent = TRUE), &quot;try-error&quot;) })(.Last.value)">Make all the points blue2 (<code>colour = &quot;blue2&quot;</code>) and size 3.</li>
+    <li data-task="pl-log" data-rcheck="(function(v) { inherits(v, &quot;ggplot&quot;) &amp;&amp; any(vapply(v$layers, function(l) inherits(l$geom, &quot;GeomPoint&quot;) &amp;&amp; any(vapply(list(v$mapping, l$mapping), function(m) !is.null(m$x) &amp;&amp; identical(rlang::as_label(m$x), &quot;log.brain&quot;), logical(1))) &amp;&amp; any(vapply(list(v$mapping, l$mapping), function(m) !is.null(m$y) &amp;&amp; identical(rlang::as_label(m$y), &quot;log.body&quot;), logical(1))), logical(1))) &amp;&amp; !inherits(try(ggplot2::ggplot_build(v), silent = TRUE), &quot;try-error&quot;) })(.Last.value)">The points are all squashed into the bottom left-hand corner of the plot. Use the <code>log.brain</code> and <code>log.body</code> columns instead, and see whether the plot looks better.</li>
+    <li data-task="pl-category" data-rcheck="(function(v) { inherits(v, &quot;ggplot&quot;) &amp;&amp; any(vapply(v$layers, function(l) inherits(l$geom, &quot;GeomPoint&quot;) &amp;&amp; any(vapply(list(v$mapping, l$mapping), function(m) !is.null(m$x) &amp;&amp; identical(rlang::as_label(m$x), &quot;log.brain&quot;), logical(1))) &amp;&amp; any(vapply(list(v$mapping, l$mapping), function(m) !is.null(m$y) &amp;&amp; identical(rlang::as_label(m$y), &quot;log.body&quot;), logical(1))) &amp;&amp; any(vapply(list(v$mapping, l$mapping), function(m) !is.null(m$colour) &amp;&amp; identical(rlang::as_label(m$colour), &quot;Category&quot;), logical(1))), logical(1))) &amp;&amp; !inherits(try(ggplot2::ggplot_build(v), silent = TRUE), &quot;try-error&quot;) })(.Last.value)">Change the colour of the points from a fixed blue to a mapping, so that they are coloured by <code>Category</code>.</li>
+  </ol>
+</div>
+<div class="q" data-q="pl-q-extinct" data-type="mcq">
+  <div class="q-text">What do you notice about the extinct species?</div>
+  <div class="mcq"><label data-correct data-why="The three extinct species are dinosaurs: Diplodocus, Triceratops and Brachiosaurus. Their brains were tiny for animals of their size."><input type="radio"> Their bodies are far heavier, for the size of their brains, than those of the other animals, so they sit well above the rest</label><label data-why="Look at the three points in the Extinct colour: they are well away from the line that the other animals follow."><input type="radio"> They follow the same trend as the other animals</label><label data-why="Look along the x axis: the elephants and humans have far larger brains."><input type="radio"> They had the largest brains of all</label></div>
+</div>
+<div class="q" data-q="pl-q-fixed" data-type="mcq">
+  <div class="q-text">What is the difference between <code>geom_point(colour = &quot;red&quot;)</code> and <code>ggplot(brain, aes(x = log.brain, y = log.body, colour = Category))</code>?</div>
+  <div class="mcq"><label data-correct data-why="A fixed aesthetic goes outside aes(), and a mapped aesthetic, which comes from the data, goes inside it."><input type="radio"> The first makes every point red; the second colours each point according to the value in its Category column</label><label data-why="Only the second takes the colours from the data. The first gives every point the same colour."><input type="radio"> There is no difference: both set the colour of the points</label><label data-why="Both of them can be used with any geometry. The difference is where the colour comes from."><input type="radio"> The first is for points and the second is for lines</label></div>
+</div>
+<div class="optional">
+  <div class="opt-t"><span class="opt-tag">If you have time</span> Leave out the extinct species</div>
+  <p class="opt-note">This part is optional: it doesn’t count towards your certificate.</p>
+
+<p>Draw your last plot again, but without the extinct species. Use what you learnt about <code>filter()</code> to remove them from the data, and pipe the filtered data straight into <code>ggplot()</code>.</p>
+<div class="activity">
+  <div class="act-t">Filter, then plot</div>
+  <ol class="steps">
+    <li data-task="pl-noext" data-rcheck="(function(v) { inherits(v, &quot;ggplot&quot;) &amp;&amp; any(vapply(v$layers, function(l) inherits(l$geom, &quot;GeomPoint&quot;) &amp;&amp; any(vapply(list(v$mapping, l$mapping), function(m) !is.null(m$x) &amp;&amp; identical(rlang::as_label(m$x), &quot;log.brain&quot;), logical(1))) &amp;&amp; any(vapply(list(v$mapping, l$mapping), function(m) !is.null(m$y) &amp;&amp; identical(rlang::as_label(m$y), &quot;log.body&quot;), logical(1))), logical(1))) &amp;&amp; nrow(v$data) == 24 &amp;&amp; !(&quot;Extinct&quot; %in% v$data$Category) &amp;&amp; !inherits(try(ggplot2::ggplot_build(v), silent = TRUE), &quot;try-error&quot;) })(.Last.value)">Plot the data without the extinct species.</li>
+  </ol>
+</div>
+
+</div>
+
+</section>
+
+<section class="chapter" id="more" data-num="6" data-title="More kinds of plot" data-bench="rstudio" hidden>
+  <h1>Bar plots and distributions</h1>
+  <div class="meta-row"><span class="pill time">≈ 25 min</span></div>
+  <p class="lede">Points are only the start. ggplot2 has geometries for bar plots, histograms, density plots and many more, and they all work in the same way.</p>
+
+<h2 id="mo-bars">Bar plots: geom_col() and geom_bar()</h2>
+<p>There are two geometries for bar plots, and which one you need depends on your data. Use <b><code>geom_col()</code></b> when your data already contain the heights of the bars. Then you need two aesthetics: <code>x</code> for the bars, and <code>y</code> for their heights. To plot the expression of each gene in the WT samples:</p>
+<div class="codefile rblock"><div class="cf-head"><span class="cf-name">R</span><span class="grow"></span><button class="do showme" type="button" data-rs-type="expression %&gt;%
+  ggplot(aes(x = Gene, y = WT)) +
+  geom_col(fill = &quot;red2&quot;)">show me</button><button class="btn small" type="button" data-copy-code="1">Copy</button></div><pre class="codeblock">expression %&gt;%
+  ggplot(aes(x = Gene, y = WT)) +
+  geom_col(fill = &quot;red2&quot;)</pre></div>
+<p>Use <b><code>geom_bar()</code></b> when you want ggplot2 to count things for you: how many rows there are for each value of <code>x</code>. It only needs the <code>x</code> aesthetic. For example, <code>ggplot(small, aes(x = Category)) + geom_bar()</code> draws a bar for each category, as tall as the number of samples in it.</p>
+
+<h2 id="mo-dist">Distributions: histograms and density plots</h2>
+<p>A histogram divides the range of the values into bins, and draws a bar for each bin, as tall as the number of values in it. The argument <code>binwidth</code> sets how wide the bins are. These examples use <code>many_values.txt</code>, which has 100,000 values from two genotypes:</p>
+<div class="codefile rblock"><div class="cf-head"><span class="cf-name">R</span><span class="grow"></span><button class="do showme" type="button" data-rs-type="many.values &lt;- read_tsv(&quot;many_values.txt&quot;, show_col_types = FALSE)
+many.values %&gt;%
+  ggplot(aes(x = values)) +
+  geom_histogram(binwidth = 0.1, fill = &quot;yellow&quot;, colour = &quot;black&quot;)">show me</button><button class="btn small" type="button" data-copy-code="1">Copy</button></div><pre class="codeblock">many.values &lt;- read_tsv(&quot;many_values.txt&quot;, show_col_types = FALSE)
+many.values %&gt;%
+  ggplot(aes(x = values)) +
+  geom_histogram(binwidth = 0.1, fill = &quot;yellow&quot;, colour = &quot;black&quot;)</pre></div>
+<p>A density plot (<code>geom_density()</code>) draws a smooth curve instead, which is often easier to read when you are comparing groups. Here the <code>fill</code> is mapped to the genotype, and <code>alpha</code>, the opacity, is set to 0.5, so that each curve shows through the other:</p>
+<div class="codefile rblock"><div class="cf-head"><span class="cf-name">R</span><span class="grow"></span><button class="do showme" type="button" data-rs-type="many.values %&gt;%
+  ggplot(aes(x = values, fill = genotype)) +
+  geom_density(colour = &quot;black&quot;, alpha = 0.5)">show me</button><button class="btn small" type="button" data-copy-code="1">Copy</button></div><pre class="codeblock">many.values %&gt;%
+  ggplot(aes(x = values, fill = genotype)) +
+  geom_density(colour = &quot;black&quot;, alpha = 0.5)</pre></div>
+<div class="callout concept">
+  <div class="co-t">fill and colour</div>
+  <p>For a shape with an inside, such as a bar or the area under a density curve, <code>fill</code> sets the colour of the inside and <code>colour</code> sets the colour of its outline. For points and lines, <code>colour</code> is the colour of the point or line itself. The help page of each geometry (for example <code>?geom_histogram</code>) lists all the aesthetics it understands.</p>
+</div>
+<div class="activity">
+  <div class="act-t">More plots</div>
+  <ol class="steps">
+    <li data-task="mo-col" data-rcheck="(function(v) { inherits(v, &quot;ggplot&quot;) &amp;&amp; any(vapply(v$layers, function(l) inherits(l$geom, &quot;GeomCol&quot;) &amp;&amp; any(vapply(list(v$mapping, l$mapping), function(m) !is.null(m$x) &amp;&amp; identical(rlang::as_label(m$x), &quot;Sample&quot;), logical(1))) &amp;&amp; any(vapply(list(v$mapping, l$mapping), function(m) !is.null(m$y) &amp;&amp; identical(rlang::as_label(m$y), &quot;Length&quot;), logical(1))), logical(1))) &amp;&amp; all(v$data$Category == &quot;A&quot;) &amp;&amp; !inherits(try(ggplot2::ggplot_build(v), silent = TRUE), &quot;try-error&quot;) })(.Last.value)">Draw a bar plot of the lengths of the samples in category A of <code>small</code>. Filter the data to keep only the category A samples, pass the filtered tibble to <code>ggplot()</code>, use <code>Sample</code> for x and <code>Length</code> for y, and use <code>geom_col()</code>, because the data give the heights of the bars.</li>
+    <li data-task="mo-hist" data-rcheck="(function(v) { inherits(v, &quot;ggplot&quot;) &amp;&amp; any(vapply(v$layers, function(l) inherits(l$geom, &quot;GeomBar&quot;) &amp;&amp; inherits(l$stat, &quot;StatBin&quot;) &amp;&amp; any(vapply(list(v$mapping, l$mapping), function(m) !is.null(m$x) &amp;&amp; identical(rlang::as_label(m$x), &quot;MutantReadPercent&quot;), logical(1))), logical(1))) &amp;&amp; !inherits(try(ggplot2::ggplot_build(v), silent = TRUE), &quot;try-error&quot;) })(.Last.value)">Plot the distribution of the <code>MutantReadPercent</code> values of <code>child</code> as a histogram, and change its <code>fill</code> and <code>colour</code> to make it look better.</li>
+    <li data-task="mo-bin" data-rcheck="(function(v) { inherits(v, &quot;ggplot&quot;) &amp;&amp; any(vapply(v$layers, function(l) inherits(l$geom, &quot;GeomBar&quot;) &amp;&amp; inherits(l$stat, &quot;StatBin&quot;) &amp;&amp; any(vapply(list(v$mapping, l$mapping), function(m) !is.null(m$x) &amp;&amp; identical(rlang::as_label(m$x), &quot;MutantReadPercent&quot;), logical(1))), logical(1))) &amp;&amp; any(vapply(v$layers, function(l) !is.null(l$stat_params$binwidth), logical(1))) &amp;&amp; !inherits(try(ggplot2::ggplot_build(v), silent = TRUE), &quot;try-error&quot;) })(.Last.value)">Try different values of <code>binwidth</code> in <code>geom_histogram()</code> to change how finely the distribution is divided up.</li>
+    <li data-task="mo-dens" data-rcheck="(function(v) { inherits(v, &quot;ggplot&quot;) &amp;&amp; any(vapply(v$layers, function(l) inherits(l$geom, &quot;GeomDensity&quot;) &amp;&amp; any(vapply(list(v$mapping, l$mapping), function(m) !is.null(m$x) &amp;&amp; identical(rlang::as_label(m$x), &quot;MutantReadPercent&quot;), logical(1))), logical(1))) &amp;&amp; !inherits(try(ggplot2::ggplot_build(v), silent = TRUE), &quot;try-error&quot;) })(.Last.value)">Plot the same distribution as a density plot.</li>
+    <li data-task="mo-bar" data-rcheck="(function(v) { inherits(v, &quot;ggplot&quot;) &amp;&amp; any(vapply(v$layers, function(l) inherits(l$geom, &quot;GeomBar&quot;) &amp;&amp; inherits(l$stat, &quot;StatCount&quot;) &amp;&amp; any(vapply(list(v$mapping, l$mapping), function(m) !is.null(m$x) &amp;&amp; identical(rlang::as_label(m$x), &quot;REF&quot;), logical(1))), logical(1))) &amp;&amp; all(nchar(v$data$REF) == 1) &amp;&amp; !inherits(try(ggplot2::ggplot_build(v), silent = TRUE), &quot;try-error&quot;) })(.Last.value)">Draw a bar plot of how often each base is the reference base of a variant. Filter <code>child</code> to keep only the variants whose <code>REF</code> is a single letter (use <code>nchar()</code>), pass them to <code>ggplot()</code> with <code>REF</code> as the x aesthetic, and use <code>geom_bar()</code>: there is no y aesthetic, so ggplot2 counts the variants for each base.</li>
+  </ol>
+</div>
+<div class="q" data-q="mo-q-ref" data-accept="^g$||^g \(?6,?982\)?$" data-placeholder="A base">
+  <div class="q-text">Which base is most often the reference base of a single-base variant?</div>
+  <div class="q-model">G, with 6982 variants (C has 6813, T 5718 and A 5707). <code>child %&gt;% filter(nchar(REF) == 1) %&gt;% count(REF)</code> gives you the numbers.</div>
+</div>
+<div class="q" data-q="mo-q-colbar" data-type="mcq">
+  <div class="q-text">You have a tibble with one row for each sample, and you want a bar for each category, as tall as the number of samples in it. Which geometry do you need?</div>
+  <div class="mcq"><label data-correct data-why="geom_bar() counts the rows for each value of x, so it doesn’t need a y aesthetic."><input type="radio"> <code>geom_bar()</code>, with Category as x</label><label data-why="geom_col() needs a y aesthetic, the height of each bar, which your data would have to contain already."><input type="radio"> <code>geom_col()</code>, with Category as x</label><label data-why="Histograms are for numbers, which they divide into bins. Category is text."><input type="radio"> <code>geom_histogram()</code>, with Category as x</label></div>
+</div>
+<div class="q" data-q="mo-q-bin" data-type="mcq">
+  <div class="q-text">What happens to a histogram when you make <code>binwidth</code> smaller?</div>
+  <div class="mcq"><label data-correct data-why="Each bin covers a smaller range of values, so there are more of them, each with fewer values in it."><input type="radio"> There are more, narrower bars, which show more detail but are more ragged</label><label data-why="That is what a larger binwidth does."><input type="radio"> There are fewer, wider bars</label><label data-why="With narrower bins there are more bars as well as shorter ones."><input type="radio"> The bars get shorter, but there are just as many</label></div>
+</div>
+
+</section>
+
+<section class="chapter" id="labels" data-num="7" data-title="Titles and labels" data-bench="rstudio" hidden>
+  <h1>Titles, labels and layers</h1>
+  <div class="meta-row"><span class="pill time">≈ 15 min</span></div>
+  <p class="lede">A plot that someone else will read needs a title and clear labels. ggplot2 builds a plot up in layers, so you add these, and other annotations, with <code>+</code>.</p>
+
+<p><code>ggtitle()</code> adds a title to a plot, and <code>xlab()</code> and <code>ylab()</code> change the labels of its axes. A plot can also have more than one geometry, each of them a <b>layer</b> drawn on top of the ones before. <code>geom_text()</code> writes text at each point, taken from the <code>label</code> aesthetic. Here the names of the genes are written just below the points, because <code>vjust = 1.2</code> moves each label down a little:</p>
+<div class="codefile rblock"><div class="cf-head"><span class="cf-name">R</span><span class="grow"></span><button class="do showme" type="button" data-rs-type="expression %&gt;%
+  ggplot(aes(x = WT, y = KO, label = Gene)) +
+  geom_point() +
+  ggtitle(&quot;Expression level comparison&quot;) +
+  xlab(&quot;WT expression level (log2 RPM)&quot;) +
+  ylab(&quot;KO expression level (log2 RPM)&quot;) +
+  geom_text(vjust = 1.2)">show me</button><button class="btn small" type="button" data-copy-code="1">Copy</button></div><pre class="codeblock">expression %&gt;%
+  ggplot(aes(x = WT, y = KO, label = Gene)) +
+  geom_point() +
+  ggtitle(&quot;Expression level comparison&quot;) +
+  xlab(&quot;WT expression level (log2 RPM)&quot;) +
+  ylab(&quot;KO expression level (log2 RPM)&quot;) +
+  geom_text(vjust = 1.2)</pre></div>
+<p>The arguments <code>hjust</code> and <code>vjust</code> move the labels sideways and up or down. Try a few values to see what they do.</p>
+<div class="activity">
+  <div class="act-t">Label your plot</div>
+  <ol class="steps">
+    <li data-task="lb-title" data-rcheck="(function(v) { inherits(v, &quot;ggplot&quot;) &amp;&amp; any(vapply(v$layers, function(l) inherits(l$geom, &quot;GeomPoint&quot;) &amp;&amp; any(vapply(list(v$mapping, l$mapping), function(m) !is.null(m$x) &amp;&amp; identical(rlang::as_label(m$x), &quot;log.brain&quot;), logical(1))) &amp;&amp; any(vapply(list(v$mapping, l$mapping), function(m) !is.null(m$y) &amp;&amp; identical(rlang::as_label(m$y), &quot;log.body&quot;), logical(1))), logical(1))) &amp;&amp; is.character(v$labels$title) &amp;&amp; nzchar(v$labels$title) &amp;&amp; is.character(v$labels$x) &amp;&amp; nzchar(v$labels$x) &amp;&amp; is.character(v$labels$y) &amp;&amp; nzchar(v$labels$y) &amp;&amp; !inherits(try(ggplot2::ggplot_build(v), silent = TRUE), &quot;try-error&quot;) })(.Last.value)">Go back to your plot of <code>log.body</code> against <code>log.brain</code>, coloured by <code>Category</code>, and give it a title and proper labels for its axes.</li>
+    <li data-task="lb-text" data-rcheck="(function(v) { inherits(v, &quot;ggplot&quot;) &amp;&amp; any(vapply(v$layers, function(l) inherits(l$geom, &quot;GeomText&quot;) &amp;&amp; any(vapply(list(v$mapping, l$mapping), function(m) !is.null(m$label) &amp;&amp; identical(rlang::as_label(m$label), &quot;Species&quot;), logical(1))), logical(1))) &amp;&amp; !inherits(try(ggplot2::ggplot_build(v), silent = TRUE), &quot;try-error&quot;) })(.Last.value)">Add a <code>geom_text()</code> layer that writes the name of each species next to its point. It needs a mapping of <code>label</code> to <code>Species</code>, which you can add to the <code>aes()</code> in <code>ggplot()</code> or give to <code>geom_text()</code> in an <code>aes()</code> of its own. Then use <code>hjust</code> to move the names off the points.</li>
+  </ol>
+</div>
+<div class="q" data-q="lb-q-plus" data-type="mcq">
+  <div class="q-text">Why does this code draw a plot with no points, and then give an error?<pre class="codeblock">ggplot(brain, aes(x = log.brain, y = log.body))
+  + geom_point()</pre></div>
+  <div class="mcq"><label data-correct data-why="R ran the first line as a complete command, which draws an empty plot, and then found a line starting with +. Move the + to the end of the first line."><input type="radio"> The + is at the start of the second line, so R thinks the command ended with the first line</label><label data-why="geom_point() uses the aesthetics given to ggplot() unless you give it others."><input type="radio"> geom_point() needs its own aes()</label><label data-why="Piping and giving the tibble as the first argument do the same thing."><input type="radio"> The data should be piped into ggplot()</label></div>
+</div>
+<div class="optional">
+  <div class="opt-t"><span class="opt-tag">If you have time</span> A line of best fit</div>
+  <p class="opt-note">This part is optional: it doesn’t count towards your certificate.</p>
+
+<p>The plot shows that animals with heavier brains tend to have heavier bodies. You can test whether this relationship is significant, and measure how strong it is, with two functions that ask similar questions of the same data, but which are used in quite different ways. That is a good reminder to read the help page of a function before you use it.</p>
+<p><code>cor.test()</code> takes two vectors of the same length and tests the correlation between them. It gives you the correlation coefficient and a p-value. Use <code>$</code> to take the <code>log.brain</code> and <code>log.body</code> columns out of <code>brain</code>, and note the p-value, so that you can add it to the title of your plot.</p>
+<p><code>lm()</code> fits a linear model. Its two main arguments are a <b>formula</b>, which describes the relationship you want to model, and the data. The formula <code>log.body ~ log.brain</code> means “log.body as predicted by log.brain”, so the command is <code>lm(log.body ~ log.brain, data = brain)</code>. It gives you the intercept and the slope of the line of best fit, which you can draw on your plot with <code>geom_abline(intercept = …, slope = …)</code>.</p>
+<div class="activity">
+  <div class="act-t">Test, and draw the line</div>
+  <ol class="steps">
+    <li data-task="lb-cor" data-rcheck="(function(v) { inherits(v, &quot;htest&quot;) &amp;&amp; grepl(&quot;correlation&quot;, v$method) })(.Last.value)">Test the correlation between <code>log.brain</code> and <code>log.body</code> with <code>cor.test()</code>.</li>
+    <li data-task="lb-lm" data-rcheck="(function(v) { inherits(v, &quot;lm&quot;) })(.Last.value)">Fit a linear model of <code>log.body</code> against <code>log.brain</code> with <code>lm()</code>.</li>
+    <li data-task="lb-abline" data-rcheck="(function(v) { inherits(v, &quot;ggplot&quot;) &amp;&amp; any(vapply(v$layers, function(l) inherits(l$geom, &quot;GeomAbline&quot;), logical(1))) &amp;&amp; any(grepl(&quot;[0-9]&quot;, c(v$labels$title, v$labels$subtitle))) &amp;&amp; !inherits(try(ggplot2::ggplot_build(v), silent = TRUE), &quot;try-error&quot;) })(.Last.value)">Add the line of best fit to your plot with <code>geom_abline()</code>, and put the p-value in the title.</li>
+  </ol>
+</div>
+<div class="q" data-q="lb-q-p" data-accept="^2\.44 ?(e-0?6|x ?10\^?-6|× ?10\^?-6)$||^0\.00000244\d*$" data-placeholder="A number">
+  <div class="q-text">What p-value does cor.test() give for the correlation?</div>
+  <div class="q-model">2.44e-06, which is 0.00000244: a highly significant correlation. The correlation coefficient is 0.77, and <code>lm()</code> gives an intercept of −2.283 and a slope of 1.215.</div>
+</div>
+
+</div>
+
+</section>
+
+<section class="chapter cert-chapter" id="certificate" data-num="★" data-title="Certificate" data-bench="rstudio" data-cert hidden>
+  <h1>Your certificate</h1>
+  <p class="lede">Your certificate for the Tidyverse course, with your name on it.</p>
+
+<p>When you have finished every step and question of this course (apart from those marked <b>If you have time</b>), your certificate is unlocked here. It shows your name and the date you finished, and you can download it as a PDF to keep or to send to your tutor.</p>
+<div class="cert-panel" data-cert-panel></div>
+
+</section>
+<!--/CHAPTERS-->
+    </aside>
+
+    <div class="splitter" role="separator" aria-orientation="vertical" title="Drag to resize, or double-click to reset"></div>
+
+    <section class="bench" aria-label="Workbench">
+      <div class="wb-tabs" role="tablist">
+        <button class="wb-tab rail-btn" type="button" id="tutRail" title="Show the instructions (Ctrl+\)" hidden><svg class="ic" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M13 10l2 2-2 2"/></svg><span>Instructions</span></button>
+        <button class="wb-tab on" type="button" role="tab" data-wb="rstudio" title="RStudio, an integrated development environment for R"><svg class="ic" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M12 4v16M3 12h18"/></svg><span class="lbl">RStudio</span><span class="dot"></span></button>
+        <button class="wb-tab" type="button" role="tab" data-wb="editor" title="Your files and a text editor"><svg class="ic" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v1H7l-4 9z"/><path d="M3 19l3.5-8H22l-3.5 8z"/></svg><span class="lbl">Files</span><span class="dot"></span></button>
+        <button class="wb-tab" type="button" role="tab" data-wb="assistant" title="AI assistant"><svg class="ic" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3l2 5.5L19.5 10 14 12l-2 5.5L10 12l-5.5-2L10 8.5z"/><path d="M19 17l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg><span class="lbl">AI</span><span class="dot"></span></button>
+        <button class="bench-close" type="button" aria-label="Back to the instructions">✕ Instructions</button>
+      </div>
+      <div class="wb-body">
+        <div class="wb-pane" data-wb="rstudio"><div id="rsRoot"></div></div>
+        <div class="wb-pane" data-wb="editor" hidden><div id="edRoot"></div></div>
+        <div class="wb-pane" data-wb="assistant" hidden><div id="aiRoot"></div></div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<button class="bench-fab" type="button" aria-label="Open the workbench"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M12 4v16M3 12h18"/></svg>Workbench</button>
+<noscript><p style="padding:20px">This page needs JavaScript.</p></noscript>
+
+<script>window.RWB_STARTERS = [{"p":"Child_Variants.csv","s":1594229},{"p":"brain_bodyweight.txt","s":1385},{"p":"broken_selects.R","s":332},{"p":"chr_data.txt","s":36002},{"p":"expr_data.txt","s":430},{"p":"many_values.txt","s":2205524},{"p":"neutrophils.csv","s":385},{"p":"small_file.txt","s":438},{"p":"transform_data.txt","s":592},{"p":"trumpton.txt","s":199}];
+window.RWB_STARTERS_VERSION = 1;</script>
+<script>window.RT_COURSES = [{"id":"r-basics","page":"r-basics.html","dataPage":"rbasics","title":"R basics","part":1,"programme":"Part 1 of Introduction to R","certSummary":"Using R in RStudio: calculations, objects, functions and help, vectors and vectorised operations, and R’s data structures.","seal":"R basics","time":"About 2½ hours","tasks":["s-name","s-first","c-mult","c-div","c-brackets","c-plus","c-new","c-run","c-save","o-x","o-y","o-z","o-show","f-sqrt","f-name","f-nchar","f-substr","f-help","f-search","v-c","v-colon","v-seq","v-tail","v-rep","vo-sub","vo-1000","vo-warn","vo-median","sv-test","sv-count","sv-first","sv-wt","r-norm","r-test","r-mean1","ds-list","ds-mean","ds-df","ds-view","ds-str","ds-mon"],"questions":["c-q-mult","c-q-div","c-q-order","o-q-z","o-q-name","o-q-update","f-q-log","f-q-quotes","f-q-default","v-q-last","v-q-mix","v-q-seq","vo-q-sub","vo-q-last","vo-q-recycle","sv-q-count","sv-q-pick","r-q-p","r-q-false","ds-q-mon","ds-q-pass","ds-q-df"]},{"id":"tidyverse","page":"tidyverse.html","dataPage":"tidyverse","title":"Tidyverse","part":2,"programme":"Part 2 of Introduction to R","certSummary":"Working with data in the tidyverse: reading files with readr, choosing rows and columns with dplyr, combining steps with pipes, and drawing plots with ggplot2.","seal":"Tidyverse","time":"About 3 hours","tasks":["t-name","t-script","t-install","t-library","rd-wd","rd-small","rd-view","rd-median","rd-child","rd-print","rd-mean","fl-a","fl-80","fl-sample","fl-mt","fl-70","fl-qual","fl-gene","fl-cols","pp-quality","pp-chr","pp-dbsnp","pl-read","pl-scatter","pl-blue","pl-log","pl-category","mo-col","mo-hist","mo-bin","mo-dens","mo-bar","lb-title","lb-text"],"questions":["rd-q-median","rd-q-mean","rd-q-sd","rd-q-type","td-q-batch","td-q-tidy","fl-q-80","fl-q-gene","fl-q-which","fl-q-quotes","pp-q-quality","pp-q-dbsnp","pp-q-pipe","pl-q-extinct","pl-q-fixed","mo-q-ref","mo-q-colbar","mo-q-bin","lb-q-plus"]}];</script>
+<script>window.RT_PAGE = {"course":"Tidyverse (the second part of Introduction to R), which teaches the tidyverse in RStudio","aiData":"The course’s data are in ~/data: small_file.txt (tab-separated: 40 samples, with the columns Sample, Length and Category, which is A, B, C or D), Child_Variants.csv (25,822 variants found in a child’s exome, with the columns CHR, POS, dbSNP, REF, ALT, QUAL, GENE, ENST, MutantReads, COVERAGE and MutantReadPercent; dbSNP is \".\" where a variant has no ID), brain_bodyweight.txt (tab-separated: 27 species, with the columns Species, Category (Domesticated, Wild or Extinct), body (kg), brain (g), log.brain and log.body), trumpton.txt (tab-separated: 7 people, with LastName, FirstName, Age, Weight and Height), expr_data.txt (Gene, WT, KO, pValue), transform_data.txt (WT, KO, difference), many_values.txt (100,000 values, each with a genotype, WT or KO), neutrophils.csv (the columns DMSO, TGX-221, PI103 and Akt1, with missing values), chr_data.txt, and broken_selects.R (a script with mistakes in it, which an exercise asks the student to fix).","aiStyle":"Show small, complete examples that run here, in the style of this course: the tidyverse, loaded with library(tidyverse) (installed once with install.packages(\"tidyverse\")) – readr (read_csv, read_tsv), dplyr (select, filter, and the pipe %>%), and ggplot2 (ggplot, aes, geom_point, geom_col, geom_bar, geom_histogram, geom_density, geom_text, ggtitle, xlab, ylab, geom_abline). Inside dplyr and ggplot2 functions, columns are used by their names; $ takes a single column out as a vector.","aiChat":["Why does read_tsv() print a “column specification”?","What is the difference between select() and filter()?","What does the pipe %>% do?","When do I use geom_bar() and when geom_col()?"],"ex":{"obj":"child","Obj":"Child","dataName":"the child variants data","file":"~/data/Child_Variants.csv","read":"child <- read_csv(\"~/data/Child_Variants.csv\")","mean":"mean(child$MutantReadPercent)","cols":["CHR","POS","dbSNP","REF","ALT","QUAL","GENE","ENST","MutantReads","COVERAGE","MutantReadPercent","Sample","Length","Category","Species","body","brain","log.brain","log.body","LastName","FirstName","Age","Weight","Height"],"factors":["CHR","REF","ALT","GENE","Category","Sample","Species","LastName","FirstName"]}};</script>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/core.js"></script>
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/cert.js"></script>
+<script src="assets/js/vfs.js"></script>
+<script src="assets/js/project.js"></script>
+<script src="assets/js/shell.js"></script>
+<script src="assets/js/shell-lang.js"></script>
+<script src="assets/js/tools-wasm.js"></script>
+<script src="assets/js/shell-extra.js"></script>
+<script src="assets/js/shell-r.js"></script>
+<script src="assets/js/terminal.js"></script>
+<script src="assets/vendor/codemirror/codemirror.js"></script>
+<script src="assets/vendor/codemirror/r.js"></script>
+<script src="assets/vendor/codemirror/markdown.js"></script>
+<script src="assets/vendor/codemirror/yaml.js"></script>
+<script src="assets/vendor/codemirror/shell.js"></script>
+<script src="assets/vendor/codemirror/javascript.js"></script>
+<script src="assets/vendor/codemirror/python.js"></script>
+<script src="assets/vendor/codemirror/overlay.js"></script>
+<script src="assets/vendor/codemirror/multiplex.js"></script>
+<script src="assets/vendor/codemirror/yaml-frontmatter.js"></script>
+<script src="assets/vendor/codemirror/rmarkdown.js"></script>
+<script src="assets/vendor/codemirror/matchbrackets.js"></script>
+<script src="assets/vendor/codemirror/closebrackets.js"></script>
+<script src="assets/vendor/codemirror/comment.js"></script>
+<script src="assets/vendor/codemirror/searchcursor.js"></script>
+<script src="assets/vendor/codemirror/active-line.js"></script>
+<script src="assets/vendor/codemirror/runmode.js"></script>
+<script src="assets/vendor/dompurify/purify.min.js"></script>
+<script src="assets/vendor/marked/marked.min.js"></script>
+<script src="assets/js/rsession.js"></script>
+<script src="assets/js/rui.js"></script>
+<script src="assets/js/dataview.js"></script>
+<script src="assets/js/rconsole.js"></script>
+<script src="assets/js/knit.js"></script>
+<script src="assets/js/rstudio.js"></script>
+<script src="assets/js/rsource.js"></script>
+<script src="assets/js/shiny.js"></script>
+<script src="assets/js/kernels.js"></script>
+<script src="assets/js/notebook.js"></script>
+<script src="assets/js/pdfview.js"></script>
+<script src="assets/js/editor.js"></script>
+<script src="assets/js/assistant.js"></script>
+<script src="assets/js/page.js"></script>
+<script src="assets/js/tutorial.js"></script>
+<script src="assets/js/workbench.js"></script>
+</body>
+</html>

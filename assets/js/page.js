@@ -51,7 +51,11 @@
     return fs;
   }
 
-  MG.page.firstBench = 'console';
+  /* the tab shown first: the page's own choice (body data-first), or its first tab */
+  const firstTab = document.querySelector('.wb-tab[data-wb]');
+  MG.page.firstBench = document.body.dataset.first || (firstTab ? firstTab.dataset.wb : 'rstudio');
+  /** the page has this tab of the workbench (each course chooses its tabs) */
+  MG.app.hasTab = (name) => !!document.querySelector(`.wb-pane[data-wb="${name}"]`);
   MG.page.init = async function () {
     MG.app.fs = await setupFs();
     MG.project.persist();
@@ -201,6 +205,14 @@
     const A = await waitFor(() => MG.app.rstudio);
     if (A) A.consoleRun(code(c));
   };
+  /** type code into RStudio's Console without running it: the student presses Enter */
+  MG.actions.rsType = async (c) => {
+    await MG.app.showWorkbench('rstudio');
+    const A = await waitFor(() => MG.app.rstudio);
+    if (A) A.consoleType(code(c));
+  };
+  MG.actions.studentName = async () => MG.cert && MG.cert.nameDialog();
+  MG.actions.certDownload = async () => MG.cert && MG.cert.download(document.body.dataset.course);
   MG.actions.nbOpen = async (p) => {
     await MG.app.showWorkbench('notebook');
     const nb = await waitFor(() => MG.app.nbApp);
@@ -248,19 +260,49 @@
   };
   MG.checks.installed = (t, d, pkg) => MG.R.userlib.list().includes(pkg);
   MG.checks.bench = (t, d, name) => MG.app.currentBench === name;
+  /* an object in RStudio's Environment pane: rsvar:NAME (it exists), rsvar:NAME=TEXT (what the pane shows for it
+     is TEXT), rsvar:NAME~TEXT (… contains TEXT), rsvar:NAME%TEXT (… contains TEXT, ignoring spaces and case) */
+  MG.checks.rsvar = (t, d, arg) => {
+    const vars = (MG.app.rstudio && MG.app.rstudio.vars) || [];
+    const m = /^([^=~%]+)(?:([=~%])(.*))?$/.exec(arg || '');
+    if (!m) return false;
+    const v = vars.find((x) => x.name === m[1]);
+    if (!v) return false;
+    if (!m[2]) return true;
+    const desc = String(v.desc || '');
+    if (m[2] === '=') return desc === m[3];
+    if (m[2] === '~') return desc.includes(m[3]);
+    const sq = (x) => String(x).replace(/\s+/g, '').toLowerCase();
+    return sq(desc).includes(sq(m[3]));
+  };
+  /* the student has given their name (for their certificate) */
+  MG.checks.named = () => !!MG.user.fullName();
 
   /* the Help button at the top of the page */
+  const TAB_HELP = {
+    console: '<b>R console</b> is the standard R console, as you get it when you install R.',
+    rstudio: '<b>RStudio</b> works like the RStudio program, with an editor for scripts and documents, and panes for the objects in R’s memory, plots, help and files.',
+    notebook: '<b>Notebook</b> has Jupyter-style notebooks in R.',
+    terminal: '<b>Terminal</b> is a bash terminal in which you can run <code>Rscript</code>, <code>R CMD BATCH</code> and <code>R</code> (type <code>help</code> to see the other programs).',
+    editor: '<b>Files</b> shows your files and has a text editor.',
+    assistant: '<b>AI</b> is an AI assistant that you can ask about R.'
+  };
+  const NUM = ['no', 'one', 'two', 'three', 'four', 'five', 'six'];
   MG.page.help = function () {
+    const tabs = Array.from(document.querySelectorAll('.wb-tab[data-wb]')).map((t) => t.dataset.wb);
+    const several = tabs.filter((t) => ['console', 'rstudio', 'notebook', 'terminal'].includes(t)).length > 1;
+    const course = document.body.dataset.course;
     MG.modal(
       'How this page works',
       `<ul>
 <li>The <b>instructions</b> are on the left and the <b>workbench</b> is on the right. You can drag the divider between them to change their widths, and the button at the top left (or <kbd>Ctrl</kbd>+<kbd>\\</kbd>) hides the instructions so that the workbench fills the window.</li>
-<li>The workbench has six tabs. <b>R console</b> is the standard R console, as you get it when you install R. <b>RStudio</b> works like the RStudio program, with an editor for scripts and documents (R Markdown and Quarto) and panes for plots, help and files. <b>Notebook</b> has Jupyter-style notebooks in R. <b>Terminal</b> is a bash terminal in which you can run <code>Rscript</code>, <code>R CMD BATCH</code> and <code>R</code> (type <code>help</code> to see the other programs). <b>Files</b> shows your files and has a text editor, and <b>AI</b> is an AI assistant that you can ask about R.</li>
-<li>Each tab has its own R session, just as separate R programs on a computer would, so an object you create in one tab doesn’t exist in the others. They all share your files (your home folder, <code>~</code>) and the packages you install. If R is taking too long, press <kbd>Esc</kbd> to stop it.</li>
-<li>R runs inside your web browser, on this computer. It is R 4.6, compiled to WebAssembly (webR), and it is downloaded the first time a tab needs it (about 30 MB). A package you install is downloaded once and can then be used in every tab.</li>
-<li>The <b>show me</b> buttons in the instructions type code in for you, and you press <kbd>Enter</kbd> to run it. The steps of each activity are ticked automatically when you complete them (they are marked <b>✓ spotted</b>), and you can also tick them yourself.</li>
-<li>Your ticks and answers, your files and the packages you have installed are saved in this browser, so they will still be there if you reload the page. <b>My answers</b> lets you download your answers, and <b>My files</b> downloads all your files as a .zip file. Some lab computers clear the browser’s storage when you log out, so download your work before you leave.</li>
-<li>The <b>AI assistant</b> needs an API key of your own (Google Gemini has a free tier). Your key stays in this browser tab and is only sent to the AI service you chose. Everything you send to the assistant goes to that service, so never type personal or patient data into it, or into any other AI tool.</li>
+<li>The workbench has ${NUM[tabs.length] || tabs.length} tabs. ${tabs.map((t) => TAB_HELP[t] || '').join(' ')}</li>
+${several ? '<li>Each tab has its own R session, just as separate R programs on a computer would, so an object you create in one tab doesn’t exist in the others. They all share your files (your home folder, <code>~</code>) and the packages you install. If R is taking too long, press <kbd>Esc</kbd> to stop it.</li>' : '<li>If R is taking too long, press <kbd>Esc</kbd> in the Console to stop it.</li>'}
+<li>R runs inside your web browser, on this computer. It is R 4.6, compiled to WebAssembly (webR), and it is downloaded the first time it is needed (about 30 MB). A package you install is downloaded once, and the browser keeps it.</li>
+<li>The <b>show me</b> buttons in the instructions type code in for you, and you press <kbd>Enter</kbd> to run it. The steps of each activity are ticked automatically when you complete them (they are marked <b>✓ spotted</b>), and you can also tick them yourself. Questions with a <b>Check</b> button are marked as soon as you check your answer.</li>
+${course ? '<li>When you have finished every step and question (apart from those marked <b>If you have time</b>), your <b>certificate</b> is unlocked in the last chapter. It shows the name you give with the button at the top of the page, and you can download it as a PDF.</li>' : ''}
+<li>Your ticks and answers, your name, your files and the packages you have installed are saved in this browser, so they will still be there if you reload the page. <b>My answers</b> lets you download your answers, and <b>My files</b> downloads all your files as a .zip file. Some lab computers clear the browser’s storage when you log out, so download your work before you leave.</li>
+${tabs.includes('assistant') ? '<li>The <b>AI assistant</b> needs an API key of your own (Google Gemini has a free tier). Your key stays in this browser tab and is only sent to the AI service you chose. Everything you send to the assistant goes to that service, so never type personal or patient data into it, or into any other AI tool.</li>' : ''}
 <li>To start again, use <b>My answers → Start again</b> to clear your ticks and answers, or <b>My files → Start afresh</b> to delete your files.</li>
 </ul>`
     );

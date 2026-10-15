@@ -220,7 +220,7 @@
       const u = await MG.project.usage();
       const used = u && u.usage ? `${MG.humanSize(u.usage)}B used of about ${MG.humanSize(u.quota)}B` : '';
       MG.popmenu(btn, [
-        ['zip', 'Download all my files (.zip)', () => MG.project.download(HOME(), 'r-workbench-files.zip')],
+        ['zip', 'Download all my files (.zip)', () => MG.project.download(HOME(), 'r-training-files.zip')],
         ['upload', 'Add files from my computer…', () => MG.app.pickFiles(HOME(), false)],
         ['folder', 'Add a folder from my computer…', () => MG.app.pickFiles(HOME(), true)],
         ['folder', 'Show my files', () => MG.app.showWorkbench('editor')],
@@ -265,7 +265,7 @@
     );
     const yes = m.box.querySelector('[data-x="yes"]');
     m.box.querySelector('[data-x="sure"]').addEventListener('change', (e) => (yes.disabled = !e.target.checked));
-    m.box.querySelector('[data-x="dl"]').addEventListener('click', () => MG.project.download(MG.app.HOME, 'r-workbench-files.zip'));
+    m.box.querySelector('[data-x="dl"]').addEventListener('click', () => MG.project.download(MG.app.HOME, 'r-training-files.zip'));
     m.box.querySelector('[data-x="no"]').addEventListener('click', () => m.close());
     yes.addEventListener('click', async () => {
       m.close();
@@ -296,15 +296,17 @@
     const btn = $('#userBtn');
     if (!btn) return;
     const label = btn.querySelector('.user-name');
+    /* the student's name, as it appears on their certificates (MG.cert.nameDialog asks for it) */
     const show = () => {
-      const n = MG.user.name(), plain = n === MG.user.DEFAULT;
-      if (label) label.textContent = n;
-      btn.title = plain ? 'Set your name in the workbench, so that the terminal and R show it instead of “user”' : `Your name in the workbench: ${n} (click to change it)`;
-      btn.setAttribute('aria-label', plain ? 'Your name in the workbench: user (click to set your own)' : `Your name in the workbench: ${n}`);
+      const n = MG.user.fullName();
+      if (label) label.textContent = n || 'Your name';
+      btn.title = n ? `Your name, as it appears on your certificates: ${n} (click to change it)` : 'Add your name, as you would like it to appear on your certificates';
+      btn.setAttribute('aria-label', n ? `Your name: ${n}. Click to change it.` : 'Add your name');
+      btn.classList.toggle('unnamed', !n);
     };
     show();
     bus.on('user:name', show);
-    btn.addEventListener('click', nameDialog);
+    btn.addEventListener('click', () => (MG.cert ? MG.cert.nameDialog() : nameDialog()));
   }
   function nameDialog() {
     const D = MG.user.DEFAULT, cur = MG.user.name();
@@ -401,6 +403,8 @@
   /* the title and subtitle of config.js */
   function initBrand() {
     const C = MG.config || {};
+    // (a course's page names the course itself, in its header and title)
+    if (document.body.dataset.course) return;
     if (C.courseTitle) {
       const t = $('.brand-title'), a = $('.brand');
       if (t) t.textContent = C.courseTitle;
@@ -480,9 +484,16 @@
     } catch (e) {
       console.error(e);
     }
+    try {
+      if (MG.cert && MG.cert.initCoursePage) MG.cert.initCoursePage();
+    } catch (e) {
+      console.error(e);
+    }
+    // (a tab this page has: each course page has only the tabs it needs)
+    const has = (t) => !!t && !!TAB_NAME[t] && (!MG.app.hasTab || MG.app.hasTab(t));
     const want = new URLSearchParams(location.search).get('tab');
-    const first = (want && TAB_NAME[want] && want) || MG.app.currentBench || store.get('bench', null) || MG.page.firstBench || 'console';
-    if (!MG.app.currentBench || want) MG.app.showWorkbench(TAB_NAME[first] ? first : 'console', { noOpen: true });
+    const first = [want, MG.app.currentBench, store.get('bench', null), MG.page.firstBench, 'rstudio', 'console'].find(has);
+    if (!MG.app.currentBench || want) MG.app.showWorkbench(first, { noOpen: true });
     ready = true;
     document.body.classList.add('ready');
     window.MG_READY = true;

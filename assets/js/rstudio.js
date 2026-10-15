@@ -692,6 +692,7 @@ shinyApp(ui = ui, server = server)
       if (vars == null) return;
       this.vars = vars;
       this._renderEnv();
+      bus.emit('rstudio:env', { names: vars.map((v) => v.name).join(' ') });
     }
     _renderEnv() {
       const L = this.envList;

@@ -198,7 +198,11 @@
             at = 0;
           } else line[at++] = ch;
         }
+        // (a line wiped with spaces, the cursor back at its start, as packages do before a message: in a terminal
+        // the next output is written over it, so nothing of it is left to see)
+        if (at === 0 && line.length && line.every((c) => c === ' ')) line = [];
         const t = done + line.join('');
+        if (!same && !t) return;
         if (same) {
           this.chars += t.length - last.textContent.length;
           last.textContent = t;
@@ -287,6 +291,13 @@
         const v = inp.value;
         inp.value = '';
         this._submit(v);
+        return;
+      }
+      // RStudio's shortcuts in its Console: Alt+- types the assignment arrow, Ctrl+Shift+M a pipe
+      if (this.opts.theme === 'rstudio' && ((e.altKey && !e.ctrlKey && !e.metaKey && e.code === 'Minus') || ((e.ctrlKey || e.metaKey) && e.shiftKey && e.code === 'KeyM'))) {
+        e.preventDefault();
+        inp.setRangeText(e.altKey ? ' <- ' : ' |> ', inp.selectionStart, inp.selectionEnd, 'end');
+        this._grow();
         return;
       }
       if (e.key === 'Escape') {

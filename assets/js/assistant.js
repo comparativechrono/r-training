@@ -198,6 +198,20 @@
      what the model is told about the workbench
      ------------------------------------------------------------------ */
   const PENGUINS = 'species, island, bill_len, bill_dep, flipper_len, body_mass, sex, year';
+  /* The page's course (build/make_pages.py writes window.RT_PAGE): its data and its examples, used in what the
+     assistant is told and in its offline help. Without it, the R workbench's penguins. */
+  const PAGE = window.RT_PAGE || null;
+  const EX = Object.assign(
+    { obj: 'penguins', Obj: 'Penguins', dataName: 'the penguins data', file: '~/data/penguins.csv', read: 'df <- read.csv("~/data/penguins.csv")', mean: 'mean(penguins$body_mass, na.rm = TRUE)', cols: PENGUINS.split(', '), factors: ['species', 'island', 'sex'] },
+    (PAGE && PAGE.ex) || {}
+  );
+  /** the page has this tab (a course page has only the tabs it needs) */
+  const has = (t) => !(MG.app && MG.app.hasTab) || MG.app.hasTab(t);
+  /** the places that code from an answer can go, in words: 'the R console, RStudio, a notebook or the terminal' */
+  const placesInWords = () => {
+    const p = [['console', 'the R console'], ['rstudio', 'RStudio'], ['notebook', 'a notebook'], ['terminal', 'the terminal']].filter(([t]) => has(t)).map(([, w]) => w);
+    return p.length > 1 ? p.slice(0, -1).join(', ') + ' or ' + p[p.length - 1] : p[0] || 'RStudio';
+  };
   function rVersions() {
     const V = (MG.R && MG.R.versions) || {};
     return { r: V.r || '4.6', webr: V.webr || ((CFG.webrBase || '').match(/v(\d+\.\d+(\.\d+)?)/) || [])[1] || '0.6' };
@@ -228,13 +242,21 @@
     const v = rVersions();
     const pk = installed();
     return [
-      `- R ${v.r} (webR ${v.webr}): R compiled to WebAssembly, running in the browser. Each way of using R here is a separate R session, as R processes on a computer are: the R console tab, RStudio's Console, the notebooks (one R shared by all notebooks), and each Rscript run, knit or R in the terminal. Objects made in one are not in another; they share the files and the installed packages.`,
+      PAGE && !has('console') && !has('notebook')
+        ? `- R ${v.r} (webR ${v.webr}): R compiled to WebAssembly, running in the browser. The student works in RStudio's Console and scripts: one R session (Session > Restart R starts a new one). Each Rscript run, knit or R in RStudio's Terminal is a separate R. They share the files and the installed packages.`
+        : `- R ${v.r} (webR ${v.webr}): R compiled to WebAssembly, running in the browser. Each way of using R here is a separate R session, as R processes on a computer are: the R console tab, RStudio's Console, the notebooks (one R shared by all notebooks), and each Rscript run, knit or R in the terminal. Objects made in one are not in another; they share the files and the installed packages.`,
       `- Packages come from the webR repository: CRAN packages built for webR – a large part of CRAN, ggplot2, dplyr, tidyr, readr, readxl and stringr among them, but not every package with compiled code. A package is installed once with install.packages("name") – in any R of the workbench – and then loaded with library(name) in each R session that uses it. ${pk.length ? 'Installed in this browser now: ' + pk.join(', ') + '.' : 'None is installed in this browser yet; R’s base packages (stats, graphics, grDevices, utils, datasets, methods, tools …) are always there – the recommended packages (MASS, Matrix, lattice …) are not: they are installed like any other.'}`,
-      `- The course's data: ~/data/penguins.csv (344 penguins of three species from three islands; columns ${PENGUINS}; missing values are NA) and ~/data/penguins.xlsx (the same data: a sheet "penguins" and a sheet "about"; read it with readxl::read_excel). R 4.6 also has the same data built in, as datasets::penguins (in it species, island and sex are factors).`,
-      `- Files: the student's files are in ~ (= ${HOME()}), kept in the browser and shared by all the tabs. Working directories: the R console and RStudio start in ~; a notebook's code runs in the notebook's folder (most are in ~/notebooks); Rscript and R in the terminal start in the terminal's current folder; knitting runs in the document's folder. A path such as "~/data/penguins.csv" works everywhere.`,
-      "- What works: plots (base graphics, ggplot2 …) – in windows of the R console, in RStudio's Plots pane, under the cell in a notebook, into Rplots.pdf (or the file of png()) with Rscript; View(); help pages (?mean, help.search()); readline(); knitting R Markdown documents, R Notebooks and Quarto documents to HTML; Shiny apps (in RStudio's Viewer – Run App or runApp() – or in a window of the R console; not in notebooks or Rscript); Rscript and R CMD BATCH in the terminal.",
-      '- What does not exist here: system(), system2() and shell() (R cannot run other programs: commands go in the Terminal tab); pandoc and LaTeX (documents knit to HTML only – not to PDF or Word); RStudio projects, Git and add-ins; Python (and so no reticulate); parallel processes.',
-      `- Terminal: a bash-like shell simulated in the page (pipes, redirection, variables, $( ), loops, functions, here-documents; no background jobs, and no sudo, apt, curl, wget, git, python or pip). Its programs: ${programs()}.`
+      PAGE && PAGE.aiData
+        ? `- ${PAGE.aiData}`
+        : `- The course's data: ~/data/penguins.csv (344 penguins of three species from three islands; columns ${PENGUINS}; missing values are NA) and ~/data/penguins.xlsx (the same data: a sheet "penguins" and a sheet "about"; read it with readxl::read_excel). R 4.6 also has the same data built in, as datasets::penguins (in it species, island and sex are factors).`,
+      PAGE && !has('console') && !has('notebook')
+        ? `- Files: the student's files are in ~ (= ${HOME()}), kept in the browser. RStudio's R starts in ~ (getwd()); setwd() or Session > Set Working Directory changes it; knitting runs in the document's folder. A full path such as "${EX.file}" works wherever the working directory is.`
+        : `- Files: the student's files are in ~ (= ${HOME()}), kept in the browser and shared by all the tabs. Working directories: the R console and RStudio start in ~; a notebook's code runs in the notebook's folder (most are in ~/notebooks); Rscript and R in the terminal start in the terminal's current folder; knitting runs in the document's folder. A path such as "~/data/penguins.csv" works everywhere.`,
+      PAGE && !has('console') && !has('notebook')
+        ? "- What works: plots (base graphics, ggplot2 …) in RStudio's Plots pane (Export saves them); View() (a table in the Source pane); help pages (?mean, ??search words, help.search()); readline(); knitting R Markdown documents, R Notebooks and Quarto documents to HTML; Shiny apps in RStudio's Viewer (Run App or runApp()); Rscript and R CMD BATCH in RStudio's Terminal tab."
+        : "- What works: plots (base graphics, ggplot2 …) – in windows of the R console, in RStudio's Plots pane, under the cell in a notebook, into Rplots.pdf (or the file of png()) with Rscript; View(); help pages (?mean, help.search()); readline(); knitting R Markdown documents, R Notebooks and Quarto documents to HTML; Shiny apps (in RStudio's Viewer – Run App or runApp() – or in a window of the R console; not in notebooks or Rscript); Rscript and R CMD BATCH in the terminal.",
+      `- What does not exist here: system(), system2() and shell() (R cannot run other programs: commands go in ${has('terminal') ? 'the Terminal tab' : "RStudio's Terminal tab"}); pandoc and LaTeX (documents knit to HTML only – not to PDF or Word); RStudio projects, Git and add-ins; Python (and so no reticulate); parallel processes.`,
+      `- ${has('terminal') ? 'Terminal' : "RStudio's Terminal tab (next to its Console)"}: a bash-like shell simulated in the page (pipes, redirection, variables, $( ), loops, functions, here-documents; no background jobs, and no sudo, apt, curl, wget, git, python or pip). Its programs: ${programs()}.`
     ];
   }
 
@@ -242,7 +264,7 @@
      offline help (no model connected): what common error messages mean
      Each rule: [pattern, text or (match, all text, the command) => text]. Up to two rules answer.
      ------------------------------------------------------------------ */
-  const COLS = PENGUINS.split(', ');
+  const COLS = EX.cols;
   const inline = (s) => '`' + s + '`'; // (inline code in the help's Markdown)
   /* the package a function of an error message usually comes from */
   const PKG_OF = {
@@ -255,10 +277,12 @@
         const n = m[1], col = COLS.includes(n);
         return [
           `R does not know the name ${inline(n)}. This usually happens for one of these reasons:`,
-          `- There may be a typing mistake. Names are case-sensitive, so ${inline('Penguins')} is not the same as ${inline('penguins')}.`,
-          `- The line that creates ${inline(n)} hasn't been run in *this* R session yet, or it failed. Each tab has its own R session, so an object you create in RStudio doesn't exist in the R console or in a notebook. Knitting also starts a new R session, which only has what the document itself creates.`,
+          `- There may be a typing mistake. Names are case-sensitive, so ${inline(EX.Obj)} is not the same as ${inline(EX.obj)}.`,
+          has('console') || has('notebook')
+            ? `- The line that creates ${inline(n)} hasn't been run in *this* R session yet, or it failed. Each tab has its own R session, so an object you create in RStudio doesn't exist in the R console or in a notebook. Knitting also starts a new R session, which only has what the document itself creates.`
+            : `- The line that creates ${inline(n)} hasn't been run yet in this R session, or it failed. Restarting R (Session ▸ Restart R) empties its memory, so run the lines of your script again from the top. Knitting also starts a new R session, which only has what the document itself creates.`,
           col
-            ? `- ${inline(n)} is a column of the penguins data, not a separate object. Write ${inline('penguins$' + n)}, or use the name inside a function that is given the data, such as ${inline(/^(species|island|sex)$/.test(n) ? `table(penguins$${n})` : `mean(penguins$${n}, na.rm = TRUE)`)} or ${inline(`aes(x = ${n})`)} in ggplot2. If you use ${inline('filter()')} or ${inline('select()')}, load dplyr first with ${inline('library(dplyr)')}. Without it, R uses the ${inline('filter()')} function from the stats package, which doesn't know about the columns.`
+            ? `- ${inline(n)} is a column of ${EX.dataName}, not a separate object. Write ${inline(EX.obj + '$' + n)}, or use the name inside a function that is given the data, such as ${inline(EX.factors.includes(n) ? `table(${EX.obj}$${n})` : `mean(${EX.obj}$${n}, na.rm = TRUE)`)} or ${inline(`aes(x = ${n})`)} in ggplot2. If you use ${inline('filter()')} or ${inline('select()')}, load dplyr first with ${inline('library(dplyr)')}. Without it, R uses the ${inline('filter()')} function from the stats package, which doesn't know about the columns.`
             : `- You used a column name on its own. Write ${inline('data$column')} instead, or use the name inside a function that is given the data.`,
           '',
           `To check, ${inline('ls()')} lists the objects in this R session, and ${inline(`exists("${n}")`)} tells you whether R knows the name.`
@@ -321,30 +345,32 @@
     ],
     [
       /argument is not numeric or logical|invalid 'type' \((character|list)\) of argument/,
-      `The function needs numbers, but it was given text (or a list, or a whole data frame). Give it a single numeric column, for example ${inline('mean(penguins$body_mass, na.rm = TRUE)')}. ${inline('str(data)')} shows which columns contain numbers.`
+      `The function needs numbers, but it was given text (or a list, or a whole data frame). Give it a single numeric column, for example ${inline(EX.mean)}. ${inline('str(data)')} shows which columns contain numbers.`
     ],
     [/no applicable method for '([^']+)' applied to an object of class "([^"]+)"/, (m) => `${inline(m[1] + '()')} doesn't work on this kind of object (${inline(m[2])}). Check what you gave it with ${inline('class(x)')}. Often it is a different object from the one you meant, or a package that the function needs hasn't been loaded.`],
-    [/used without hex digits|is an unrecognized escape/, `In a string, a backslash starts a special character (${inline('"\\n"')} is a new line), so a Windows path such as ${inline('"C:\\Users\\…"')} doesn't work. Use ${inline('/')} in paths instead. Your files here are in ${inline('~')}, so a path looks like ${inline('"~/data/penguins.csv"')}.`],
-    [/object of type 'closure' is not subsettable/, `You used ${inline('$')} or ${inline('[ ]')} on a function. This happens when no data has been created under that name, so R finds a function with the same name instead (${inline('data')}, ${inline('df')}, ${inline('c')} and ${inline('t')} are all functions). Create the data first, for example with ${inline('df <- read.csv("~/data/penguins.csv")')}, or check the name with ${inline('ls()')}.`],
+    [/used without hex digits|is an unrecognized escape/, `In a string, a backslash starts a special character (${inline('"\\n"')} is a new line), so a Windows path such as ${inline('"C:\\Users\\…"')} doesn't work. Use ${inline('/')} in paths instead. Your files here are in ${inline('~')}, so a path looks like ${inline('"' + EX.file + '"')}.`],
+    [/object of type 'closure' is not subsettable/, `You used ${inline('$')} or ${inline('[ ]')} on a function. This happens when no data has been created under that name, so R finds a function with the same name instead (${inline('data')}, ${inline('df')}, ${inline('c')} and ${inline('t')} are all functions). Create the data first, for example with ${inline(EX.read)}, or check the name with ${inline('ls()')}.`],
     [/\$ operator is invalid for atomic vectors/, `${inline('$')} works on data frames and lists, but not on a plain vector. Check what the object is with ${inline('class(x)')} or ${inline('str(x)')}. For a vector, use ${inline('x[2]')} or ${inline('x["name"]')} instead.`],
     [/subscript out of bounds/, `You asked for a row, column or element that doesn't exist, such as ${inline('x[[5]]')} of a list with only 3 elements. Check the size with ${inline('length(x)')}, ${inline('dim(x)')} or ${inline('names(x)')}.`],
     [/undefined columns selected/, `A column name in ${inline('data[ , "name"]')} isn't in the data. Check for a typing mistake or a difference in upper and lower case. ${inline('names(data)')} lists the columns. (Leaving out the comma, as in ${inline('data[rows]')}, also gives this error. Rows go before the comma: ${inline('data[rows, ]')}.)`],
     [
       /cannot open (file|the connection|compressed file)|No such file or directory|does not exist in current working directory|[Pp]ath ['‘`"].*['’`"] does not exist|file ['‘`"].*['’`"] does not exist/,
       [
-        `R looked for the file in the wrong place, or the name isn't quite right. If a path has no folder in it, R looks in its working directory. ${inline('getwd()')} shows the working directory, which differs between the tabs: the R console and RStudio start in your home folder (${inline('~')}), a notebook uses the folder it is saved in, and ${inline('Rscript')} uses the terminal's current folder.`,
+        has('console') || has('notebook')
+          ? `R looked for the file in the wrong place, or the name isn't quite right. If a path has no folder in it, R looks in its working directory. ${inline('getwd()')} shows the working directory, which differs between the tabs: the R console and RStudio start in your home folder (${inline('~')}), a notebook uses the folder it is saved in, and ${inline('Rscript')} uses the terminal's current folder.`
+          : `R looked for the file in the wrong place, or the name isn't quite right. If a path has no folder in it, R looks in its working directory: ${inline('getwd()')} shows it. RStudio's R starts in your home folder (${inline('~')}), and ${inline('setwd()')} (or Session ▸ Set Working Directory) changes it.`,
         '',
-        `The course's data is in ${inline('~/data')}, so ${inline('read.csv("~/data/penguins.csv")')} works in every tab. ${inline('list.files("~/data")')} shows what is there, and ${inline('file.exists("~/data/penguins.csv")')} checks whether a path exists.`
+        `The course's data is in ${inline('~/data')}, so a full path such as ${inline('"' + EX.file + '"')} works wherever R's working directory is. ${inline('list.files("~/data")')} shows what is there, and ${inline('file.exists("' + EX.file + '")')} checks whether a path exists.`
       ].join('\n')
     ],
     [/arguments imply differing number of rows|replacement has \d+ rows?, data has \d+/, `The columns have different lengths, so they can't be put together into one table. For example, ${inline('data.frame(x = 1:3, y = 1:2)')} fails. Check each one with ${inline('length()')}. For a new column, also check that it has one value for each row (${inline('nrow(data)')}).`],
-    [/missing value where TRUE\/FALSE needed/, `An ${inline('if ( )')} or ${inline('while ( )')} got NA instead of TRUE or FALSE, because a value in the condition is missing. Test for it first with ${inline('is.na(x)')}, or use ${inline('isTRUE(x > 3)')}. (The penguins data has missing values, and ${inline('na.rm = TRUE')} leaves them out of ${inline('mean()')}, ${inline('sum()')} and similar functions.)`],
+    [/missing value where TRUE\/FALSE needed/, `An ${inline('if ( )')} or ${inline('while ( )')} got NA instead of TRUE or FALSE, because a value in the condition is missing. Test for it first with ${inline('is.na(x)')}, or use ${inline('isTRUE(x > 3)')}. (When data have missing values, ${inline('na.rm = TRUE')} leaves them out of ${inline('mean()')}, ${inline('sum()')} and similar functions.)`],
     [/the condition has length > 1/, `${inline('if ( )')} needs a single TRUE or FALSE, but it was given a whole vector. To get one answer about all the values, use ${inline('any()')} or ${inline('all()')}. To get a separate answer for each value, use ${inline('ifelse(x > 3, "big", "small")')}.`],
     [/argument "([^"]+)" is missing, with no default/, (m) => `The function needs an argument called ${inline(m[1])}, but it wasn't given one. ${inline('?name')} (with the function's name) shows its arguments. Also check that a comma or bracket hasn't cut the call short.`],
     [/unused argument/, `A function was given an argument it doesn't have. This is usually a typing mistake in the argument's name, or a bracket in the wrong place, so that the argument went to a different function: ${inline('mean(x), na.rm = TRUE')} instead of ${inline('mean(x, na.rm = TRUE)')}. ${inline('args(name)')} lists the arguments of a function.`],
-    [/Removed \d+ rows? containing (missing|non-finite)/, `This is a warning from ggplot2, not an error: rows with missing values (NA) were left out of the plot. The penguins data has two penguins without measurements. To leave them out yourself, use ${inline('na.omit(penguins)')} or ${inline('subset(penguins, !is.na(body_mass))')}.`],
+    [/Removed \d+ rows? containing (missing|non-finite)/, `This is a warning from ggplot2, not an error: rows with missing values (NA) were left out of the plot. To leave them out yourself, use ${inline('na.omit(data)')}, or ${inline('filter(data, !is.na(column))')} with dplyr.`],
     [/NAs introduced by coercion/, `This is a warning, not an error. Some values couldn't be turned into numbers, so they became NA (for example, ${inline('as.numeric("abc")')} gives NA). To see which values they were, use ${inline('x[is.na(as.numeric(x))]')}.`],
-    [/R cannot run other programs|could not find function "system2?"/, `R can't run other programs here, because ${inline('system()')} and ${inline('system2()')} do nothing in the browser. Run the command in the Terminal tab instead, or do the same thing in R with functions such as ${inline('list.files()')}, ${inline('file.copy()')} and ${inline('readLines()')}.`],
+    [/R cannot run other programs|could not find function "system2?"/, `R can't run other programs here, because ${inline('system()')} and ${inline('system2()')} do nothing in the browser. Run the command in ${has('terminal') ? 'the Terminal tab' : "RStudio's Terminal tab"} instead, or do the same thing in R with functions such as ${inline('list.files()')}, ${inline('file.copy()')} and ${inline('readLines()')}.`],
     [/a Shiny app needs a window/, 'A Shiny app needs a window to appear in. Run it in RStudio (with Run App) or in the R console tab, but not in a notebook or with Rscript.'],
     [/Quitting from lines|Quitting from/, `This error came from knitting. Knit runs the whole document again from the beginning in a new R session, which only has what the document itself creates. So every object that the document uses must be created, every file read and every package loaded (with ${inline('library()')}) in an earlier chunk. Run all the chunks in order (Run All) to find the one that fails.`],
     [/figure margins too large/, 'The plot doesn’t fit in the space it has. Make the Plots pane (or the plot window) bigger, then draw the plot again.'],
@@ -776,11 +802,11 @@
   /* ------------------------------------------------------------------
      the panel
      ------------------------------------------------------------------ */
-  const CHAT_HELLO =
-    'Ask me about R: your code, an error message, a function, a plot, or how to do something. With each question I also receive the things you tick below the message box, such as the code you are working on, the end of the console and the names of your files. I never read your data files. You can send code from my answers to the R console, RStudio, a notebook or the terminal with one click.\n\n**Check what I give you.** Run it, look at the result and make sure you understand it. AI models make mistakes, and they sound just as sure of themselves when they do. Never paste personal or patient data here.';
+  const CHAT_HELLO = () =>
+    `Ask me about R: your code, an error message, a function, a plot, or how to do something. With each question I also receive the things you tick below the message box, such as the code you are working on, the end of the console and the names of your files. I never read your data files. You can send code from my answers to ${placesInWords()} with one click.\n\n**Check what I give you.** Run it, look at the result and make sure you understand it. AI models make mistakes, and they sound just as sure of themselves when they do. Never paste personal or patient data here.`;
   const AGENT_HELLO =
     'Give me a complete task, for example *“Write an R script that works out the mean body mass of each penguin species, run it, and save the table as a CSV file”*. I will carry it out in the Terminal, one command at a time, working in my own folder (`~/ai-agent/run-…`), where I run R with `Rscript`. You can see every command and its output, and **Stop** ends the task.\n\nI can read your files, but any changes I make outside my folder are undone. Further tasks carry on in the same folder until you press **New**. Each run is saved as a record in its folder (`agent-record.md`), so check my results there rather than relying on my report alone.';
-  const CHAT_STARTERS = [
+  const CHAT_STARTERS = (PAGE && PAGE.aiChat) || [
     'How do I read ~/data/penguins.csv into R and take a first look at it?',
     'Plot flipper length against body mass for the penguins, coloured by species, with ggplot2',
     'What is the difference between the R console, RStudio, a notebook and Rscript?',
@@ -859,7 +885,7 @@
       return t && t !== 'assistant' ? t : null;
     }
     lastBench() {
-      return this.cameFrom() || 'console';
+      return this.cameFrom() || (has('console') ? 'console' : 'rstudio');
     }
 
     _build() {
@@ -868,9 +894,10 @@
       const tabs = h('div.ai-tabs', { role: 'tablist', 'aria-label': 'Chat or agent' });
       this.tabBtns = {};
       [
-        ['chat', 'Chat', 'sparkle', 'Ask questions about R. Code in the answers can be sent to the R console, RStudio, a notebook or the terminal.'],
-        ['agent', 'Agent', 'robot', 'Give the agent a task. It runs commands in the terminal (Rscript for R), working in its own folder.']
-      ].forEach(([k, label, ic, tip]) => {
+        ['chat', 'Chat', 'sparkle', `Ask questions about R. Code in the answers can be sent to ${placesInWords()}.`],
+        // (the agent works in the Terminal tab: a page without one has the chat only)
+        has('terminal') ? ['agent', 'Agent', 'robot', 'Give the agent a task. It runs commands in the terminal (Rscript for R), working in its own folder.'] : null
+      ].filter(Boolean).forEach(([k, label, ic, tip]) => {
         const b = h('button.ai-tab', { type: 'button', role: 'tab', title: tip, html: MG.icon(ic) + '<span>' + label + '</span>' });
         b.addEventListener('click', () => this.showTab(k));
         tabs.appendChild(b);
@@ -955,7 +982,8 @@
     }
     welcome(tab) {
       if (!this.connected()) return this.setupCard(tab);
-      return this.addBubble('assistant', tab === 'agent' ? AGENT_HELLO : CHAT_HELLO, { intro: true, tab });
+      if (tab === 'agent' && !has('terminal')) return null;
+      return this.addBubble('assistant', tab === 'agent' ? AGENT_HELLO : CHAT_HELLO(), { intro: true, tab });
     }
     /** the buttons under a message when no model is connected */
     setupActs(prompt) {
@@ -1231,15 +1259,17 @@
           rstudio: (p) => btn('sourcefile', 'Put into RStudio', () => this.toRStudio(code), p, 'Put this code into the R script that is open in RStudio, at the cursor (or into a new R script). Then run it with Ctrl+Enter.'),
           notebook: (p) => btn('notebook', 'Add to notebook', () => this.toNotebook(code, false), p, 'Add this code to the open notebook as a new cell')
         };
-        const order = origin === 'rstudio' ? ['rstudio', 'console', 'notebook'] : origin === 'notebook' ? ['notebook', 'console', 'rstudio'] : ['console', 'rstudio', 'notebook'];
+        const order = (origin === 'rstudio' ? ['rstudio', 'console', 'notebook'] : origin === 'notebook' ? ['notebook', 'console', 'rstudio'] : ['console', 'rstudio', 'notebook']).filter(has);
         order.forEach((k, i) => acts.appendChild(make[k](i === 0 && !blk.file)));
-        more.push(['keyboard', 'Type it into the R console without running it', () => this.toRConsole(code, false)], ['runline', 'Run it in RStudio’s Console', () => this.toRStudioConsole(code)], ['play', 'Add it to the notebook and run it', () => this.toNotebook(code, true)]);
+        if (has('console')) more.push(['keyboard', 'Type it into the R console without running it', () => this.toRConsole(code, false)]);
+        if (has('rstudio')) more.push(['runline', 'Run it in RStudio’s Console', () => this.toRStudioConsole(code)]);
+        if (has('notebook')) more.push(['play', 'Add it to the notebook and run it', () => this.toNotebook(code, true)]);
         if (!blk.file) more.push(['save', 'Save it as a file…', () => this.saveAsAsk(blk, code)]);
       } else if (kind === 'rmd') {
         acts.appendChild(btn('book', 'Open in RStudio', () => this.rmdToRStudio(code, lang), !blk.file, 'Open this as a new R Markdown (or Quarto) document in RStudio'));
         if (!blk.file) acts.appendChild(btn('save', 'Save as…', () => this.saveAsAsk(blk, code), false, 'Save this as a file in your home folder'));
       } else if (kind === 'bash') {
-        const cmds = shellCommands(code);
+        const cmds = has('terminal') ? shellCommands(code) : [];
         if (cmds.length) {
           acts.appendChild(btn('terminal', cmds.length > 1 ? `Run in the terminal (${cmds.length} commands)` : 'Run in the terminal', () => this.toTerminal(code, true), !blk.file, 'Run these commands in the Terminal tab'));
           if (cmds.length === 1 && !cmds[0].includes('\n')) acts.appendChild(btn('keyboard', 'Type in the terminal', () => this.toTerminal(cmds[0], false), false, 'Type the command at the prompt without running it, so that you can check it before you press Enter'));
@@ -1549,28 +1579,34 @@
     /* ---------------- the chat ---------------- */
     systemPrompt() {
       return [
-        'You are the AI assistant of the R workbench: a website where students learn R – many of them new to programming – and the different ways of working with it. Everything runs in their web browser; nothing is installed. You are their R tutor.',
+        PAGE
+          ? `You are the AI assistant of an online R course for people who are new to R: ${PAGE.course}. Everything runs in the student's web browser; nothing is installed. You are their R tutor.`
+          : 'You are the AI assistant of the R workbench: a website where students learn R – many of them new to programming – and the different ways of working with it. Everything runs in their web browser; nothing is installed. You are their R tutor.',
         '',
         'The ways of using R here (the tabs of the workbench):',
-        "- R console: R's own console (as R's GUI shows it). Plots open in windows of their own, ?name opens a help window, View(data) a data window; ls() lists the objects.",
+        has('console') ? "- R console: R's own console (as R's GUI shows it). Plots open in windows of their own, ?name opens a help window, View(data) a data window; ls() lists the objects." : null,
         "- RStudio: an RStudio-like IDE. Source edits R scripts (Run: Ctrl+Enter runs the line or selection in the Console; Source runs the whole script), R Markdown documents, R Notebooks and Quarto documents (chunks run with their output under them; Knit or Render runs the whole document from the top in a new R and makes an HTML page), and Shiny apps (Run App shows them in the Viewer). Also the Console, Environment (the objects of its R), History, Files, Plots, Packages, Help and Viewer panes, and Import Dataset.",
-        '- Notebook: Jupyter-style notebooks in R (.ipynb files, as with the IRkernel): code cells and Markdown cells; outputs and plots under each cell. Notebooks here run R only.',
-        "- Terminal: a bash-like shell: Rscript script.R, Rscript -e '…', R CMD BATCH, R, and the GNU text tools.",
-        '- Files: a file browser and text editor. AI assistant: you.',
+        has('notebook') ? '- Notebook: Jupyter-style notebooks in R (.ipynb files, as with the IRkernel): code cells and Markdown cells; outputs and plots under each cell. Notebooks here run R only.' : null,
+        has('terminal') ? "- Terminal: a bash-like shell: Rscript script.R, Rscript -e '…', R CMD BATCH, R, and the GNU text tools." : null,
+        has('editor') ? '- Files: a file browser and text editor. AI assistant: you.' : '- AI assistant: you.',
         '',
         'The environment:',
         ...envLines(),
         '',
         'How to answer:',
         '- Be brief, clear and friendly; write in British English unless the student writes in another language. Explain in plain words what code does and why – the students are learning, so a short explanation of each new idea helps more than a long answer.',
-        '- Show small, complete examples that run here – with the penguins data where it fits. Prefer base R; use the tidyverse (dplyr, ggplot2, tidyr, readr) where it is natural or when the student does, and say which package each function comes from (install.packages() once, library() in each session).',
+        PAGE && PAGE.aiStyle
+          ? `- ${PAGE.aiStyle}`
+          : '- Show small, complete examples that run here – with the penguins data where it fits. Prefer base R; use the tidyverse (dplyr, ggplot2, tidyr, readr) where it is natural or when the student does, and say which package each function comes from (install.packages() once, library() in each session).',
         "- For an error: say in plain words what the message means, point to the cause in the student's own code, show the fix, and say how to check (str(), class(), names(), head(), getwd(), file.exists(), ls(), ?name).",
         '- When the student is working on an exercise, help them get there themselves: explain the idea and give a hint or a similar example first; give the whole solution when they ask for it.',
-        '- Put R code in ```r blocks and terminal commands in ```bash blocks: each block gets buttons that run it in the R console, put it into RStudio, add it to a notebook, or run it in the terminal. A whole R Markdown document goes in a ````rmd block – with four backticks, as its chunks have three. To offer a file, put its path after the language: ```r scripts/penguins.R',
+        `- Put R code in \`\`\`r blocks${has('terminal') ? ' and terminal commands in \`\`\`bash blocks' : ''}: each block gets buttons that send it to ${placesInWords()}. A whole R Markdown document goes in a \`\`\`\`rmd block – with four backticks, as its chunks have three. To offer a file, put its path after the language: \`\`\`r scripts/analysis.R`,
         '- Never invent functions, arguments, packages or results. If you are not sure, say so, and say how to check (?name, args(name), help.search("…")).',
         '- Do not claim to have run code or seen results that the student has not shown you.',
         '- If the student seems to be working with personal or patient data, remind them not to share it with AI tools.'
-      ].join('\n');
+      ]
+        .filter((x) => x != null)
+        .join('\n');
     }
     /** the working directory of an R session, for the context */
     _wd(S) {
@@ -2173,7 +2209,7 @@
     async streamLive(messages, onDelta, signal, cfg, onNote) {
       const s = (cfg && cfg.settings) || this.settings;
       const key = cfg && cfg.key != null ? cfg.key : this.key;
-      const system = (cfg && cfg.system) || this.systemPrompt();
+      const system = MG.user.mask((cfg && cfg.system) || this.systemPrompt());
       const note = onNote || (() => {});
       const reset = cfg && cfg.onReset;
       // turns must alternate between user and assistant: join neighbours of the same role
@@ -2183,6 +2219,8 @@
         else out.push({ role: m.role, content: m.content });
         return out;
       }, []);
+      // (the student's name stays in this browser: wherever it is in what goes to the service, it is "user")
+      messages = messages.map((m) => ({ role: m.role, content: MG.user.mask(m.content) }));
       if (s.provider !== 'gemini') {
         const model = modelOf(s);
         for (let attempt = 1; ; attempt++) {

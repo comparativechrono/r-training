@@ -364,6 +364,31 @@ local({
     } else w$help_html(files[1L], topic)
     invisible(x)
   }, envir = asNamespace("base"))
+  # ??topic and help.search(): R lists the matching help pages through its help server, which a browser cannot run.
+  # Here the list goes to the Help pane (RStudio, the R console) as a page whose links open the help pages; elsewhere
+  # it is printed as text, as R prints it in a terminal.
+  registerS3method("print", "hsearch", function(x, ...) {
+    w <- wb
+    if (!(w$kind %in% c("console", "rstudio"))) {
+      op <- options(help_type = "text")
+      on.exit(options(op))
+      return(utils:::print.hsearch(x, ...))
+    }
+    m <- x$matches
+    if (is.null(m)) m <- data.frame(Package = character(0), Topic = character(0), Title = character(0))
+    m <- m[!duplicated(paste(m$Package, m$Topic)), , drop = FALSE]
+    h <- function(s) gsub(">", "&gt;", gsub("<", "&lt;", gsub("&", "&amp;", s, fixed = TRUE), fixed = TRUE), fixed = TRUE)
+    rows <- if (nrow(m)) paste0('<tr><td><a href="../../', m$Package, '/help/', vapply(m$Topic, utils::URLencode, "", reserved = TRUE),
+                                '">', h(m$Package), "::", h(m$Topic), "</a></td><td>", h(m$Title), "</td></tr>") else character(0)
+    body <- c("<html><body>", "<h2>Search Results</h2>",
+              paste0("<p>The search string was <b>&quot;", h(x$pattern), "&quot;</b></p>"),
+              if (nrow(m)) c("<table>", "<tr><th>Topic</th><th>Title</th></tr>", rows, "</table>") else "<p>No help pages were found. Try a shorter or a different word.</p>",
+              "</body></html>")
+    out <- tempfile(fileext = ".html")
+    writeLines(body, out, useBytes = TRUE)
+    w$send("help", file = out, topic = paste0("??", x$pattern), package = "", title = paste0("Search Results: ", x$pattern))
+    invisible(x)
+  }, envir = asNamespace("utils"))
   options(pager = function(files, header, title, delete.file) {
     w <- wb
     text <- unlist(lapply(files, function(f) readLines(f, warn = FALSE)))

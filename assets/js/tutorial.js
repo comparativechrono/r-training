@@ -11,7 +11,9 @@
   const { h, esc, bus, toast, store, $, $$ } = MG;
   const CFG = MG.config;
   const params = new URLSearchParams(location.search);
-  const SHOW_ANSWERS = CFG.showModelAnswers || params.has('answers') || params.has('instructor');
+  const SHOW_ANSWERS = !!CFG.showModelAnswers || params.has('answers') || params.has('instructor');
+  /* 'after-try': a model answer can be shown once the question has been answered (right or wrong) */
+  const AFTER_TRY = CFG.showModelAnswers === 'after-try' && !params.has('answers') && !params.has('instructor');
 
   MG.app = MG.app || {};
   const MG_READY_FLAG = { ready: false };
@@ -154,20 +156,23 @@
   const taskEls = [];
   function parseSpec(spec) {
     return spec.split('||').map((one) => {
-      const parts = one.trim().split(/\s+(?=[a-zA-Z_]+[=~<>])/);
+      const parts = one.trim().split(/\s+(?=[a-zA-Z_]+[=~<>%])/);
       const ev = parts.shift();
       const conds = parts.map((p) => {
-        const m = /^([a-zA-Z_]+)([=~<>])(.*)$/.exec(p.trim());
+        const m = /^([a-zA-Z_]+)([=~<>%])(.*)$/.exec(p.trim());
         return m ? { k: m[1], op: m[2], v: m[3] } : null;
       }).filter(Boolean);
       return { ev, conds };
     });
   }
+  /** code without its spaces, in lower case: what % compares */
+  const squash = (s) => String(s == null ? '' : s).replace(/\s+/g, '').toLowerCase();
   function matches(spec, type, d) {
     return spec.some((s) => s.ev === type && s.conds.every((c) => {
       const val = d[c.k];
       if (c.op === '=') return String(val).toLowerCase() === c.v.toLowerCase();
       if (c.op === '~') return String(val || '').toLowerCase().includes(c.v.toLowerCase());
+      if (c.op === '%') return squash(val).includes(squash(c.v));
       if (c.op === '>') return Number(val) > Number(c.v);
       if (c.op === '<') return Number(val) < Number(c.v);
       return false;
@@ -181,12 +186,36 @@
       li.prepend(lab);
       if (li.dataset.auto || li.dataset.check) lab.title = 'This ticks itself when you do the step, or you can tick it yourself';
       cb.addEventListener('change', () => setTask(id, cb.checked, false));
-      const t = { id, li, cb, spec: li.dataset.auto ? parseSpec(li.dataset.auto) : null, check: li.dataset.check || null };
+      if (li.dataset.rcheck) lab.title = 'This ticks itself when R has what the step asks for, or you can tick it yourself';
+      const t = { id, li, cb, spec: li.dataset.auto ? parseSpec(li.dataset.auto) : null, check: li.dataset.check || null, rcheck: li.dataset.rcheck || null };
       taskEls.push(t);
       if (state.tasks[id]) mark(t, true);
     });
     bus.on('*', (d, type) => evalTasks(type, d));
+    bus.on('r:state', (d) => d && d.kind === 'rstudio' && d.state === 'idle' && rcheckSoon());
+    bus.on('app:chapter', () => rcheckSoon());
   }
+  /* the steps of the chapter on screen that R checks: one quiet evaluation in RStudio's R session for all of them */
+  let rchecking = false;
+  async function evalRChecks() {
+    const S = MG.app.rstudio && MG.app.rstudio.S;
+    if (!S || !S.idle || rchecking) return;
+    const active = chapters.find((c) => !c.hidden);
+    const todo = taskEls.filter((t) => t.rcheck && !state.tasks[t.id] && active && active.contains(t.li));
+    if (!todo.length) return;
+    rchecking = true;
+    try {
+      const one = (e) => `isTRUE(suppressWarnings(tryCatch({ ${e} }, error = function(e) FALSE)))`;
+      const res = await S.evalLines(`as.character(c(${todo.map((t) => one(t.rcheck)).join(', ')}))`);
+      (res || []).forEach((v, i) => v === 'TRUE' && todo[i] && setTask(todo[i].id, true, true));
+    } catch (e) {
+      /* R is busy or has stopped: the next command checks again */
+    } finally {
+      rchecking = false;
+    }
+  }
+  const rcheckSoon = MG.debounce(evalRChecks, 150);
+  MG.app.rcheckNow = evalRChecks;
   /* Tasks only tick for the chapter the student is reading: a command typed in one chapter
      does not tick the same step in a later one. */
   /* What the terminal reports while it runs a command of the AI agent – a program that ran, a file a
@@ -278,6 +307,7 @@
           if (rec.type !== 'short') {
             state.answers[id].done = inp.value.trim().length > 3;
             q.classList.toggle('answered', state.answers[id].done);
+            if (state.answers[id].done) tried(rec);
           }
           save();
           updateProgressSoon();
@@ -290,7 +320,9 @@
         }
       }
       if (model && SHOW_ANSWERS) {
-        const sb = h('button.btn.small', { type: 'button', text: 'Show answer' });
+        const sb = h('button.btn.small.q-show', { type: 'button', text: 'Show answer' });
+        if (AFTER_TRY && !saved.tried && !saved.done && !saved.revealed) sb.hidden = true;
+        rec.showBtn = sb;
         sb.addEventListener('click', () => {
           model.hidden = !model.hidden;
           sb.textContent = model.hidden ? 'Show answer' : 'Hide answer';
@@ -314,6 +346,10 @@
       if (rec.type === 'text' && saved.done) q.classList.add('answered');
     });
   }
+  /** a question has been answered: its model answer can now be shown */
+  function tried(rec) {
+    if (rec.showBtn) rec.showBtn.hidden = false;
+  }
   function norm(s) {
     return String(s || '').toLowerCase().replace(/[‐-―−]/g, '-').replace(/\s+/g, ' ').trim();
   }
@@ -334,7 +370,8 @@
     rec.fb.className = 'q-feedback ' + (ok ? 'ok' : 'no');
     rec.fb.textContent = ok ? '✓ Correct' : '✗ Not quite – ' + (rec.q.dataset.hint || 'check again');
     rec.q.classList.toggle('answered', ok);
-    state.answers[rec.id] = Object.assign(state.answers[rec.id] || {}, { text: rec.input.value, correct: ok, done: ok });
+    state.answers[rec.id] = Object.assign(state.answers[rec.id] || {}, { text: rec.input.value, correct: ok, done: ok, tried: true });
+    tried(rec);
     save();
     if (user) {
       updateProgress();
@@ -353,7 +390,8 @@
     const why = label.dataset.why || '';
     rec.fb.textContent = (right ? '✓ Correct. ' : '✗ Not quite. ') + why;
     rec.q.classList.toggle('answered', right);
-    state.answers[rec.id] = { choice: chosen.value, correct: right, done: right, text: label.textContent.trim() };
+    state.answers[rec.id] = { choice: chosen.value, correct: right, done: right, text: label.textContent.trim(), tried: true };
+    tried(rec);
     save();
     if (user) {
       updateProgress();
@@ -389,6 +427,12 @@
       }
     });
     const pct = total ? Math.round((done / total) * 100) : 0;
+    if (total > 0 && done === total && !state.completedAt && document.body.dataset.course) {
+      state.completedAt = new Date().toISOString();
+      store.set('progress', state);
+      if (MG_READY_FLAG.ready) setTimeout(() => bus.emit('course:complete', { course: document.body.dataset.course }), 300);
+    }
+    bus.emit('progress:changed', { done, total, pct });
     const bar = $('.progress > i');
     if (bar) bar.style.width = pct + '%';
     const lab = $('.progress-label');
@@ -400,7 +444,7 @@
      Download answers / reset
      ------------------------------------------------------------------ */
   function exportAnswers() {
-    const name = state.name || '';
+    const name = (MG.user.fullName && MG.user.fullName()) || state.name || '';
     const date = new Date().toLocaleString('en-GB');
     let html = `<!doctype html><html><head><meta charset="utf-8"><title>My answers – ${esc(pageTitle())}</title>
 <style>body{font-family:Calibri,Arial,sans-serif;max-width:800px;margin:30px auto;color:#222;line-height:1.45}h1{font-size:22px}h2{font-size:17px;border-bottom:1px solid #ccc;margin-top:28px}
@@ -426,7 +470,8 @@
     bus.emit('answers:export', {});
   }
   async function copyAnswers() {
-    let out = `${pageTitle()} – my answers${state.name ? ' (' + state.name + ')' : ''}\n\n`;
+    const who = (MG.user.fullName && MG.user.fullName()) || state.name || '';
+    let out = `${pageTitle()} – my answers${who ? ' (' + who + ')' : ''}\n\n`;
     chapters.forEach((ch) => {
       const qs = qEls.filter((x) => ch.contains(x.q));
       if (!qs.length) return;
@@ -440,7 +485,7 @@
   }
   function resetProgress() {
     const extra = (MG.page && MG.page.resetNote) || '';
-    const m = MG.modal('Start again?', `<p>This clears your ticks and answers <b>in this browser</b>${extra}. Download your answers first if you want to keep them.</p><div class="prompt-actions"><button class="btn" data-x="no" type="button">Cancel</button><button class="btn primary" data-x="yes" type="button">Clear everything</button></div>`);
+    const m = MG.modal('Start again?', `<p>This clears your ticks and answers <b>in this browser</b>${extra}${document.body.dataset.course ? ', and locks your certificate for this course again until you have finished the course once more' : ''}. Download your answers first if you want to keep them.</p><div class="prompt-actions"><button class="btn" data-x="no" type="button">Cancel</button><button class="btn primary" data-x="yes" type="button">Clear everything</button></div>`);
     m.box.querySelector('[data-x="no"]').addEventListener('click', () => m.close());
     m.box.querySelector('[data-x="yes"]').addEventListener('click', () => {
       if (MG.page && MG.page.onReset) MG.page.onReset();

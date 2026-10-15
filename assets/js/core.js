@@ -128,20 +128,76 @@
     }
   };
 
+  /* ---------- storage shared by every page of the site ----------
+     keys under the site's prefix only, e.g. "rtr:studentName": what all the courses share, such as the student's name */
+  const spfx = () => (CFG.storePrefix || 'rwb') + ':';
+  const siteStore = {
+    get(key, fallback) {
+      try {
+        const v = window.localStorage.getItem(spfx() + key);
+        return v == null ? fallback : JSON.parse(v);
+      } catch (e) {
+        return fallback;
+      }
+    },
+    set(key, value) {
+      try {
+        window.localStorage.setItem(spfx() + key, JSON.stringify(value));
+        return true;
+      } catch (e) {
+        return false;
+      }
+    },
+    remove(key) {
+      try {
+        window.localStorage.removeItem(spfx() + key);
+      } catch (e) {
+        /* ignore */
+      }
+    }
+  };
+
   /* ---------- the name of the person at the workbench ----------
-     The terminal's user is "user" (user@workbench:~$), unless the person has put in a name of their own – the button
-     with the name at the top of the page. That name is kept in this browser only. It is what the prompt, whoami, id,
-     ls -l, $USER and $LOGNAME, and R's USER show. The home folder stays /home/user whatever the name. */
+     The student's name, as they type it with the button at the top of the page ("Ada Lovelace", "José Núñez"), is kept
+     in this browser for the whole site: every course shows it, and it is the name on their certificates. The terminal
+     and R see a user name made from it (Ada.Lovelace, Jose.Nunez), or "user" when there is none: it is what the prompt,
+     whoami, id, ls -l, $USER and $LOGNAME, and R's USER show. The home folder stays /home/user whatever the name. */
   const USER0 = 'user';
   const NAME_RE = /^[A-Za-z_][A-Za-z0-9_.-]{0,31}$/;
+  const NAME_MAX = 70;
   const user = {
     DEFAULT: USER0,
+    MAX: NAME_MAX,
     /** a name that can be a user's name here: a letter or _ first, then letters, digits, . _ -, at most 32; not root */
     valid: (n) => typeof n === 'string' && NAME_RE.test(n) && n !== 'root',
-    /** the name the person chose, or "user" */
+    /** the student's name as they typed it, or '' */
+    fullName() {
+      const n = siteStore.get('studentName', '');
+      return typeof n === 'string' ? n : '';
+    },
+    /** a name as it can go on a certificate: spaces tidied, no control or direction-changing characters → the name
+        ('' for none), or null when it is too long */
+    cleanName(text) {
+      const n = String(text == null ? '' : text)
+        .normalize('NFC')
+        .replace(/[\u0000-\u001f\u007f-\u009f\u200b-\u200f\u2028-\u202e\u2060-\u206f\ufeff]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+      return n.length > NAME_MAX ? null : n;
+    },
+    /** keep the student's name ('' forgets it) → the name kept, or null when it cannot be used */
+    setFullName(text) {
+      const n = user.cleanName(text);
+      if (n == null) return null;
+      const old = user.fullName(), oldLogin = user.name();
+      if (n) siteStore.set('studentName', n);
+      else siteStore.remove('studentName');
+      if (n !== old) bus.emit('user:name', { name: user.name(), old: oldLogin, fullName: n });
+      return n;
+    },
+    /** the user name that the terminal and R see: made from the student's name, or "user" */
     name() {
-      const n = store.get('userName', '');
-      return user.valid(n) ? n : USER0;
+      return user.suggest(user.fullName()) || USER0;
     },
     /** the name that the commands see just now: "user" while the AI agent runs a command */
     login() {
@@ -153,23 +209,21 @@
       s = s.replace(/\s+/g, '.').replace(/[^A-Za-z0-9_.-]/g, '').replace(/([._-])[._-]+/g, '$1').replace(/^[^A-Za-z_]+/, '').slice(0, 32).replace(/[.-]+$/, '');
       return user.valid(s) ? s : '';
     },
-    /** keep a new name (an empty one, or "user": back to "user") → false if it cannot be a user name */
+    /** (kept for the code that sets a user name: the student's name becomes that name) */
     set(n) {
-      const old = user.name();
-      n = n == null || n === '' ? USER0 : String(n);
-      if (!user.valid(n)) return false;
-      if (n === USER0) store.remove('userName');
-      else store.set('userName', n);
-      if (n !== old) bus.emit('user:name', { name: n, old });
-      return true;
+      return user.setFullName(n == null || n === USER0 ? '' : String(n)) != null;
     },
     /** what the commands printed, with "user" in place of the person's name where the name stands for the user: the
         prompt (NAME@workbench), whoami, logname, $USER (a line of nothing else), id and stat (uid=1000(NAME)), the
         owner and group of ls -l, find -ls and tar -tv, sudo's refusal. Elsewhere the text is left as it is: a name
         that is also a word or a folder (data, home) must not change a path or a sentence. For what goes to an AI service. */
     mask(text) {
+      if (text == null) return text;
+      // (the student's full name, wherever it is – also when it is in a script that the user name can't be made from)
+      const full = user.fullName();
+      if (full) text = String(text).split(full).join(USER0);
       const n = user.name();
-      if (n === USER0 || text == null) return text;
+      if (n === USER0) return text;
       const N = n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       const perms = '[-bcdlps][-rwxsStT]{9}[.+@]?';
       return String(text)
@@ -409,7 +463,7 @@
   };
 
   Object.assign(MG, {
-    esc, h, $, $$, bus, store, toast, debounce, clamp, fmt, user,
+    esc, h, $, $$, bus, store, siteStore, toast, debounce, clamp, fmt, user,
     fetchWithTimeout, fetchJSON, fetchText, firstOk,
     downloadBlob, downloadText, copyText
   });

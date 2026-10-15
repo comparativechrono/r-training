@@ -1,0 +1,673 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>R basics – Introduction to R</title>
+<meta name="description" content="R basics, the first part of an introduction to R for people who are new to it: calculations, objects, functions and help, vectors and vectorised operations, and R’s data structures. R runs in your web browser, in an RStudio-style workbench, so there is nothing to install.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231b2340'/%3E%3Crect x='6' y='6' width='9' height='9' rx='2' fill='%238ec5ff'/%3E%3Crect x='17' y='6' width='9' height='9' rx='2' fill='%23415187'/%3E%3Crect x='6' y='17' width='9' height='9' rx='2' fill='%23415187'/%3E%3Crect x='17' y='17' width='9' height='9' rx='2' fill='%23415187'/%3E%3C/svg%3E">
+<script src="assets/js/isolation.js"></script>
+<link rel="stylesheet" href="assets/vendor/codemirror/codemirror.css">
+<link rel="stylesheet" href="assets/css/app.css">
+<link rel="stylesheet" href="assets/css/wb.css">
+<link rel="stylesheet" href="assets/css/r.css">
+<link rel="stylesheet" href="assets/css/rstudio.css">
+<link rel="stylesheet" href="assets/css/nb.css">
+<link rel="stylesheet" href="assets/css/term.css">
+<link rel="stylesheet" href="assets/css/files.css">
+<link rel="stylesheet" href="assets/css/ai.css">
+<link rel="stylesheet" href="assets/css/course.css">
+</head>
+<body data-page="rbasics" data-title="R basics" data-course="r-basics" data-first="rstudio">
+<div class="app">
+
+  <header class="topbar">
+    <button class="btn top-toggle" id="tutToggle" type="button" title="Hide the instructions so that the workbench fills the window (Ctrl+\)" aria-controls="tut" aria-expanded="true"><svg class="ic" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M16 10l-2 2 2 2"/></svg></button>
+    <a class="brand" href="index.html" title="All the courses of Introduction to R">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#26315a"/><rect x="6" y="6" width="9" height="9" rx="2" fill="#8ec5ff"/><path d="M8.6 8.8l2.4 1.7-2.4 1.7" fill="none" stroke="#1b2340" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="17" y="6" width="9" height="9" rx="2" fill="#415187"/><path d="M19 9h5M19 12h3" stroke="#a9b4d6" stroke-width="1.4" stroke-linecap="round"/><rect x="6" y="17" width="9" height="9" rx="2" fill="#415187"/><path d="M8 19.5h5v4H8z" fill="none" stroke="#a9b4d6" stroke-width="1.3"/><rect x="17" y="17" width="9" height="9" rx="2" fill="#415187"/><path d="M19 19.5h5M19 22h5M19 24.3h3" stroke="#a9b4d6" stroke-width="1.2" stroke-linecap="round"/></svg>
+      <div>
+        <div class="brand-title">R basics</div>
+        <div class="brand-sub">Introduction to R, part 1: the R language, in RStudio</div>
+      </div>
+    </a>
+    <div class="spacer"></div>
+    <div class="progress-wrap" title="The steps you have done and the questions you have answered (saved in this browser)"><span class="progress-label">0% done</span><div class="progress"><i></i></div></div>
+    <span class="store-status" id="storeStatus" title="Your files are saved in this browser, on this computer"></span>
+    <button class="btn" id="userBtn" type="button" title="Your name, as it appears on your certificates"><svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span class="user-name">Your name</span></button>
+    <button class="btn" id="projectBtn" type="button" title="Download all your files, add files, or start afresh"><svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v1H7l-4 9z"/><path d="M3 19l3.5-8H22l-3.5 8z"/></svg><span>My files</span></button>
+    <button class="btn" id="answersBtn" type="button"><svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></svg><span>My answers</span></button>
+    <button class="btn" id="helpBtn" type="button" title="How this page works"><svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.2 9a2.9 2.9 0 0 1 5.6 1c0 2-2.8 2.6-2.8 4M12 17.5h.01"/></svg><span>Help</span></button>
+    <button class="btn" id="fullBtn" type="button" title="Full screen"><span>Full screen</span></button>
+  </header>
+
+  <div class="main">
+    <aside class="tut" id="tut" aria-label="Instructions">
+      <nav class="ch-nav" aria-label="Chapters"></nav>
+<!--CHAPTERS-->
+<section class="chapter" id="start" data-num="0" data-title="Start here" data-bench="rstudio">
+  <h1>Welcome to R basics</h1>
+  <div class="meta-row"><span class="pill time">≈ 10 min</span></div>
+  <p class="lede">R is a language and an environment for working with data: for calculations, statistics and graphs. This course starts from the very beginning, so you don’t need to have done any programming before.</p>
+
+<h2 id="s-r">R and RStudio</h2>
+<p>R is free, it runs on Windows, macOS and Linux, and it copes with far more data than a spreadsheet can. It comes with a wide range of statistical tests, thousands of add-on packages extend it further, and it can draw graphs that look exactly the way you want them to. That is why it is used so widely for analysing data and for drawing figures for publication. The price of all this is that R expects you to type commands rather than click on menus, which can feel daunting at first, so this course takes you through the basics one small step at a time.</p>
+<p><b>RStudio</b> is a program that makes R much easier to work with, and it is what most people use. On your own computer, you would install R first (from <a href="https://www.r-project.org/" target="_blank" rel="noopener">r-project.org</a>) and then RStudio. Here, the <b>RStudio</b> tab of the workbench on the right is an imitation of RStudio made for teaching, and R itself runs inside your web browser, so there is nothing to install.</p>
+
+<h2 id="s-panes">Finding your way around RStudio</h2>
+<p>RStudio’s window is divided into four panes, laid out like this. Until you open a file, the Source pane is folded away and the Console has the left-hand side to itself.</p>
+<div class="ds-row panes" role="img" aria-label="RStudio’s four panes: Source at the top left, Environment at the top right, Console at the bottom left, and Files, Plots, Packages and Help at the bottom right."><div class="ds"><b>Source</b><span class="ds-sub">top left</span><span class="ds-text">An editor for scripts: files of R commands that you can run, save and come back to. It opens when you open or create a file.</span></div><div class="ds"><b>Environment</b><span class="ds-sub">top right</span><span class="ds-text">The objects in R’s memory, with their values. The <b>History</b> tab next to it lists the commands you have run.</span></div><div class="ds"><b>Console</b><span class="ds-sub">bottom left</span><span class="ds-text">Where R runs your commands. You type a command after the prompt, <code>&gt;</code>, press <kbd>Enter</kbd>, and R prints the answer underneath.</span></div><div class="ds"><b>Files, Plots, Packages, Help</b><span class="ds-sub">bottom right</span><span class="ds-text">Your files, the graphs you draw, the packages you have installed, and R’s help pages.</span></div></div>
+
+<h2 id="s-how">How this course works</h2>
+<ul>
+<li>Each chapter explains an idea, shows you some R, and then gives you an activity to do in the workbench. The instructions are on the left and the workbench is on the right; you can drag the divider between them to change their widths.</li>
+<li>The steps of an activity tick themselves when R sees that you have done them, and they are then marked <span class="auto-tag">✓ spotted</span>. If a step hasn’t ticked when you know you have done it, you can tick it yourself.</li>
+<li>Buttons such as <button class="do showme" type="button" data-rs-type="1 + 1">show me</button> type code into RStudio’s Console for you, and you then press <kbd>Enter</kbd> to run it. You will learn more by typing the code yourself, though, so use the buttons when you are stuck rather than all the time.</li>
+<li>Questions with a <b>Check</b> button are marked straight away. Once you have had a go at a question, a <b>Show answer</b> button appears, so that you can compare your answer with ours.</li>
+<li>Parts marked <b>If you have time</b> are extras, and they don’t count towards your certificate.</li>
+<li>Your ticks and answers are saved in this web browser, on this computer. <b>My answers</b>, at the top of the page, downloads a copy of your answers.</li>
+<li>The first time you open the course, R itself has to be downloaded into your browser (about 30&nbsp;MB), so it may take a moment to start.</li>
+</ul>
+
+<h2 id="s-name">Your name, for your certificate</h2>
+<p>When you have finished the course, you can download a certificate with your name on it. Add your name now, with the button below or with the <b>Your name</b> button at the top right of the page. Type it exactly as you would like it to appear on your certificate, for example <i>Ada Lovelace</i>. Your name is only kept in this browser, and you can change it at any time.</p>
+<div class="callout warn">
+  <div class="co-t">AI tools and your data</div>
+  <p>The <b>AI</b> tab has an AI assistant that you can ask about R, if you have a key for an AI service. Anything you type into it is sent to an AI company, so never paste personal data or patient data into it, or into any other AI tool.</p>
+</div>
+<div class="activity">
+  <div class="act-t">Get started</div>
+  <ol class="steps">
+    <li data-task="s-name" data-check="named">Add your name for your certificate: <button class="do" type="button" data-student-name="1">Add your name</button></li>
+    <li data-task="s-first" data-auto="r:input kind=rstudio line%1+1">Click in RStudio’s Console, at the bottom left of the workbench, type <code>1 + 1</code> and press <kbd>Enter</kbd>. R prints the answer, <code>[1] 2</code>, underneath.</li>
+  </ol>
+</div>
+
+</section>
+
+<section class="chapter" id="calc" data-num="1" data-title="R as a calculator" data-bench="rstudio" hidden>
+  <h1>R as a calculator</h1>
+  <div class="meta-row"><span class="pill time">≈ 15 min</span></div>
+  <p class="lede">The simplest way to use R is as a calculator: you type a sum into the Console, press <kbd>Enter</kbd>, and R prints the answer straight away.</p>
+
+<p>R understands the usual arithmetic operators:</p>
+<div class="table"><table class="plain"><thead><tr><th>Operator</th><th>What it does</th><th>Example</th><th>Answer</th></tr></thead><tbody><tr><td><code>+</code></td><td>addition</td><td><code>3 + 2</code></td><td>5</td></tr><tr><td><code>-</code></td><td>subtraction</td><td><code>10 - 4</code></td><td>6</td></tr><tr><td><code>*</code></td><td>multiplication</td><td><code>6 * 7</code></td><td>42</td></tr><tr><td><code>/</code></td><td>division</td><td><code>2 / 7</code></td><td>0.2857143</td></tr><tr><td><code>^</code></td><td>raising to a power</td><td><code>5 ^ 10</code></td><td>9765625</td></tr></tbody></table></div>
+<p>Here is what the Console looks like after three of these sums:</p>
+<div class="rout"><pre>&gt; 3 + 2
+[1] 5
+&gt; 2 / 7
+[1] 0.2857143
+&gt; 5 ^ 10
+[1] 9765625</pre></div>
+<p>The <code>[1]</code> in front of each answer is something you will see all the time. It means that the line starts with the first value of the answer, which will make more sense when you meet answers that contain many values, in the chapter on vectors. R shows answers to seven significant figures, but it keeps the full value in its memory, and uses that in any further calculations.</p>
+<p>R works out powers first, then multiplication and division, and then addition and subtraction, just as you would on paper. Use round brackets to change the order: <code>2 + 3 * 4</code> is 14, but <code>(2 + 3) * 4</code> is 20.</p>
+<div class="callout concept">
+  <div class="co-t">Spaces, unfinished commands and the ↑ key</div>
+  <p>R ignores the spaces between the parts of a command, so <code>3+2</code> and <code>3 + 2</code> do the same thing, but spaces make your code easier to read. If you press <kbd>Enter</kbd> before a command is finished, for example straight after <code>5 *</code>, R shows a <code>+</code> instead of its usual prompt, to tell you that it is waiting for the rest of the command. Either type the rest of it, or press <kbd>Esc</kbd> to abandon it. In the Console, the <kbd>↑</kbd> key brings back the commands you ran before, so that you can change one and run it again.</p>
+</div>
+<div class="activity">
+  <div class="act-t">Do some sums</div>
+  <ol class="steps">
+    <li data-task="c-mult" data-rcheck="(function(v) { isTRUE(all.equal(v, 2418)) })(.Last.value)">Use R to calculate 31 × 78. (In R, the multiplication sign is <code>*</code>.)</li>
+    <li data-task="c-div" data-rcheck="(function(v) { isTRUE(all.equal(v, 17)) })(.Last.value)">Calculate 697 ÷ 41.</li>
+    <li data-task="c-brackets" data-auto="r:input kind=rstudio line%(2+3)*4">Work out <code>2 + 3 * 4</code>, and then the same sum with brackets: <code>(2 + 3) * 4</code>.</li>
+    <li data-task="c-plus" data-auto="r:input kind=rstudio promptKind=continue">Type <code>5 *</code> and press <kbd>Enter</kbd>. When R shows its <code>+</code> prompt, type <code>2</code> and press <kbd>Enter</kbd> again to finish the command.</li>
+  </ol>
+</div>
+<div class="q" data-q="c-q-mult" data-accept="^2,?418$" data-placeholder="A number">
+  <div class="q-text">What is 31 × 78?</div>
+  <div class="q-model">2418</div>
+</div>
+<div class="q" data-q="c-q-div" data-accept="^17(\.0+)?$" data-placeholder="A number">
+  <div class="q-text">And what is 697 ÷ 41?</div>
+  <div class="q-model">17</div>
+</div>
+<div class="q" data-q="c-q-order" data-type="mcq">
+  <div class="q-text">What answer does R give for <code>10 - 2 * 3</code>?</div>
+  <div class="mcq"><label data-correct data-why="R multiplies before it subtracts, so this is 10 − 6."><input type="radio"> 4</label><label data-why="That would be (10 - 2) * 3. Without the brackets, R does the multiplication first."><input type="radio"> 24</label><label data-why="The spaces make no difference to R. They are only there to make the code easier to read."><input type="radio"> An error, because of the spaces</label></div>
+</div>
+
+<h2 id="c-script">Keeping your commands in a script</h2>
+<p>Anything you type into the Console is run straight away, but it isn’t kept anywhere, apart from in the list of commands on the History tab. When you are doing real work you will want a record of your commands, so that you can run them again, correct them, or show someone else what you did. In RStudio you do this by writing your commands in a <b>script</b>: a plain text file of R commands, saved with the extension <code>.R</code>.</p>
+<div class="activity">
+  <div class="act-t">Start a script</div>
+  <ol class="steps">
+    <li data-task="c-new" data-auto="rstudio:new kind=r">Choose File ▸ New File ▸ <b>R Script</b>. (The first button on RStudio’s toolbar, with a green plus sign, has the same menu.) A new, empty script opens in the Source pane, above the Console.</li>
+    <li data-task="c-run" data-auto="r:input kind=rstudio line%2^8">Type <code># my first script</code> on the first line of the script, and <code>2 ^ 8</code> on the second. With the cursor on the second line, press <kbd>Ctrl</kbd>+<kbd>Enter</kbd> (<kbd>⌘</kbd>+<kbd>Enter</kbd> on a Mac). RStudio sends the line to the Console and runs it.</li>
+    <li data-task="c-save" data-auto="rstudio:saved path~basics">Save the script with <kbd>Ctrl</kbd>+<kbd>S</kbd> (<kbd>⌘</kbd>+<kbd>S</kbd> on a Mac), and call it <code>basics.R</code>.</li>
+  </ol>
+</div>
+<div class="callout info">
+  <div class="co-t">Console or script?</div>
+  <p>A line that starts with <code>#</code> is a <b>comment</b>. R ignores it, so you can use comments to leave notes for yourself. In this course you can type commands into either the Console or your script. The <b>show me</b> buttons put code into the Console, because that is the quickest way to try something out, but whenever you write something you want to keep, put it in your script and save it.</p>
+</div>
+
+</section>
+
+<section class="chapter" id="objects" data-num="2" data-title="Objects" data-bench="rstudio" hidden>
+  <h1>Keeping values in objects</h1>
+  <div class="meta-row"><span class="pill time">≈ 15 min</span></div>
+  <p class="lede">Rather than typing the same values again and again, you can store a value in an <b>object</b> with a name, and then use the name instead of the value. Objects are often called variables.</p>
+
+<p>To create an object, you use the <b>assignment arrow</b>, which is made of a less-than sign and a hyphen. The arrow points from the value to the name it will be stored under, and it can point either way:</p>
+<div class="codefile rblock"><div class="cf-head"><span class="cf-name">R</span><span class="grow"></span><button class="do showme" type="button" data-rs-type="10 -&gt; x
+y &lt;- 20">show me</button><button class="btn small" type="button" data-copy-code="1">Copy</button></div><pre class="codeblock">10 -&gt; x
+y &lt;- 20</pre></div>
+<p>Nothing is printed when you create an object, but it appears in the Environment pane, along with its value. To see the value in the Console, type the name of the object on its own. After that, you can use the name wherever you would have used the value, and you can store the result of a calculation as a new object:</p>
+<div class="rout"><pre>&gt; 10 -&gt; x
+&gt; y &lt;- 20
+&gt; x
+[1] 10
+&gt; x + y
+[1] 30
+&gt; x + y -&gt; z
+&gt; z
+[1] 30</pre></div>
+<p>If you assign a new value to a name that already exists, the old value is replaced, without any warning. You will also see code that uses <code>=</code> for assignment, as in <code>x = 10</code>. That works too, but <code>&lt;-</code> is what most R users write, and it is what this course uses. In RStudio, <kbd>Alt</kbd>+<kbd>-</kbd> (<kbd>Option</kbd>+<kbd>-</kbd> on a Mac) types the arrow for you, with a space on either side.</p>
+
+<h2 id="o-names">Choosing names</h2>
+<p>R has a few rules about names:</p>
+<ul>
+<li>A name can contain letters, numbers, dots (<code>.</code>) and underscores (<code>_</code>), but no spaces or other symbols.</li>
+<li>It can’t start with a number: <code>sample2</code> is fine, but <code>2sample</code> isn’t.</li>
+<li>Upper and lower case letters are different, so <code>Weight</code> and <code>weight</code> are two different objects.</li>
+</ul>
+<p>Beyond the rules, a good name tells you what an object holds: <code>weight</code> is better than <code>x</code>, and <code>gene_name</code> is better than <code>gn</code>. Most people keep their names in lower case and separate the words with dots or underscores, as in <code>gene.name</code> or <code>gene_name</code>. Pick one style and stick to it.</p>
+<div class="callout concept">
+  <div class="co-t">Error: object not found</div>
+  <p>If you ask for an object that doesn’t exist, R tells you: <code>Error: object &#39;Z&#39; not found</code>. The usual causes are a typing mistake, a capital letter where you meant a small one (or the other way round), and forgetting to run the line that creates the object. The Environment pane shows you exactly which objects exist.</p>
+</div>
+<div class="activity">
+  <div class="act-t">Create some objects</div>
+  <ol class="steps">
+    <li data-task="o-x" data-rcheck="isTRUE(all.equal(x, 39))">Give <code>x</code> the value 39.</li>
+    <li data-task="o-y" data-rcheck="isTRUE(all.equal(y, 22))">Give <code>y</code> the value 22.</li>
+    <li data-task="o-z" data-rcheck="isTRUE(all.equal(z, 39 / 22))">Make <code>z</code> the value of <code>x</code> divided by <code>y</code>, using the objects rather than the numbers.</li>
+    <li data-task="o-show" data-auto="r:input kind=rstudio line=z||r:input kind=rstudio line%print(z)">Display the value of <code>z</code> in the Console, and find <code>x</code>, <code>y</code> and <code>z</code> in the Environment pane.</li>
+  </ol>
+</div>
+<div class="q" data-q="o-q-z" data-accept="^1\.77(3|27\d*)?$" data-hint="type z in the Console to see its value" data-placeholder="A number">
+  <div class="q-text">What is the value of <code>z</code>, to two decimal places?</div>
+  <div class="q-model">1.77 (R prints 1.772727)</div>
+</div>
+<div class="q" data-q="o-q-name" data-type="mcq">
+  <div class="q-text">Which of these names is <em>not</em> allowed in R?</div>
+  <div class="mcq"><label data-correct data-why="A name can’t start with a number. &lt;code&gt;sample.2nd&lt;/code&gt; or &lt;code&gt;second.sample&lt;/code&gt; would be fine."><input type="radio"> <code>2nd.sample</code></label><label data-why="Underscores and numbers are both allowed, as long as the name doesn’t start with a number."><input type="radio"> <code>sample_2</code></label><label data-why="Capital letters are allowed, although &lt;code&gt;Sample.Two&lt;/code&gt; and &lt;code&gt;sample.two&lt;/code&gt; would be two different objects."><input type="radio"> <code>Sample.Two</code></label></div>
+</div>
+<div class="q" data-q="o-q-update" data-type="mcq">
+  <div class="q-text">You run <code>x &lt;- 5</code> and then <code>x &lt;- x + 1</code>. What is the value of <code>x</code> now?</div>
+  <div class="mcq"><label data-correct data-why="R works out the right-hand side first, using the value x has at that moment (5), and then stores the answer in x, replacing the old value. You will use this to change a whole set of values later on."><input type="radio"> 6</label><label data-why="The second command stores a new value in x, replacing the old one."><input type="radio"> 5</label><label data-why="That is allowed: R works out x + 1 first, and only then stores the answer in x."><input type="radio"> An error, because x can’t appear on both sides</label></div>
+</div>
+
+</section>
+
+<section class="chapter" id="functions" data-num="3" data-title="Functions and help" data-bench="rstudio" hidden>
+  <h1>Functions, text and help</h1>
+  <div class="meta-row"><span class="pill time">≈ 25 min</span></div>
+  <p class="lede">Most of the work in R is done by functions. You give a function some values to work on, which are called its <b>arguments</b>, and it gives you back a result.</p>
+
+<h2 id="f-call">Calling a function</h2>
+<p>To use a function, you type its name followed by round brackets, with its arguments inside the brackets. For example, the function <code>sqrt</code> calculates square roots:</p>
+<div class="rout"><pre>&gt; sqrt(10)
+[1] 3.162278</pre></div>
+<p>An argument can be a value, an object, or the result of another function. When one function is inside another, R works from the inside out: in <code>log2(sqrt(16))</code>, it first works out <code>sqrt(16)</code>, which is 4, and then <code>log2(4)</code>, which is 2. You can get the same answer in two steps instead, by storing the square root in an object and then giving the object to <code>log2</code>.</p>
+
+<h2 id="f-text">Text</h2>
+<p>Text in R always goes in quotes. You can use double quotes or single quotes, as long as you use the same kind at both ends:</p>
+<div class="codefile rblock"><div class="cf-head"><span class="cf-name">R</span><span class="grow"></span><button class="do showme" type="button" data-rs-type="scientist &lt;- &quot;Ada Lovelace&quot;
+first.name &lt;- &#x27;Ada&#x27;">show me</button><button class="btn small" type="button" data-copy-code="1">Copy</button></div><pre class="codeblock">scientist &lt;- &quot;Ada Lovelace&quot;
+first.name &lt;- &#x27;Ada&#x27;</pre></div>
+<p>The quotes tell R that you mean the text itself. Without them, R thinks that you mean an object with that name, so <code>first.name &lt;- Ada</code> gives the error <code>object &#39;Ada&#39; not found</code>. Be careful with code that has been copied from a word processor: R only understands straight quotes (<code>"</code> and <code>&#39;</code>), not the curly ones (“ and ”) that word processors put in.</p>
+<p>Two useful functions for text are <code>nchar</code>, which counts the characters in a piece of text, and <code>substr</code>, which extracts part of it, from a start position to a stop position. Spaces count as characters too:</p>
+<div class="rout"><pre>&gt; scientist &lt;- &quot;Ada Lovelace&quot;
+&gt; nchar(scientist)
+[1] 12
+&gt; substr(scientist, 5, 8)
+[1] &quot;Love&quot;</pre></div>
+
+<h2 id="f-args">Arguments by position and by name</h2>
+<p>Every argument of a function has a name. The arguments of <code>substr</code> are called <code>x</code> (the text), <code>start</code> and <code>stop</code>. If you give the arguments in the order the function expects, you don’t need to name them; if you do name them, you can give them in any order you like. These three commands all do exactly the same thing:</p>
+<div class="codefile rblock"><div class="cf-head"><span class="cf-name">R</span><span class="grow"></span><button class="btn small" type="button" data-copy-code="1">Copy</button></div><pre class="codeblock">substr(scientist, 5, 8)
+substr(x = scientist, start = 5, stop = 8)
+substr(
+  start = 5,
+  stop = 8,
+  x = scientist
+)</pre></div>
+<p>The last one is spread over several lines. R allows that: it keeps reading until the brackets are closed. Naming your arguments makes your code easier to read, and it lets you give a function just the arguments you need, as you will see in the next chapter.</p>
+
+<h2 id="f-help">Getting help</h2>
+<p>Every function has a help page. Type <code>?</code> followed by the name of the function, as in <code>?sqrt</code>, and the page opens in the Help pane, at the bottom right. Help pages all follow the same pattern: <b>Description</b> says what the function does, <b>Usage</b> shows how to call it, with its arguments in order, <b>Arguments</b> explains each argument, <b>Value</b> describes what the function gives back, and <b>Examples</b>, at the end, has code that you can copy and run. In the Usage section, an argument written as <code>name = value</code> has a <em>default</em>: if you leave that argument out, R uses the value shown.</p>
+<p>If you don’t know the name of the function you need, <code>??</code> searches all the help pages for a word or phrase. <code>??substring</code> lists every help page that mentions substrings, and you can click on any of them to open it. Searching the web works well too, although “R” on its own isn’t much use as a search term. Add the name of the function or package you are asking about, as in <i>R substr</i>.</p>
+<div class="activity">
+  <div class="act-t">Use some functions</div>
+  <ol class="steps">
+    <li data-task="f-sqrt" data-rcheck="(function(v) { isTRUE(all.equal(v, log2(sqrt(2345)))) })(.Last.value)">Calculate the square root of 2345, and then calculate the log2 of the result. You can do it in one command, with one function inside the other, or in two.</li>
+    <li data-task="f-name" data-rcheck="is.character(my.name) &amp;&amp; length(my.name) == 1 &amp;&amp; nchar(my.name) &gt; 0">Put your own name into an object called <code>my.name</code>. Remember the quotes.</li>
+    <li data-task="f-nchar" data-rcheck="(function(v) { identical(v, nchar(my.name)) })(.Last.value)">Use <code>nchar</code> to find out how many characters there are in your name.</li>
+    <li data-task="f-substr" data-rcheck="(function(v) { identical(v, substr(my.name, 1, 1)) &amp;&amp; !identical(v, my.name) })(.Last.value)">Use <code>substr</code> to extract the first character of your name.</li>
+    <li data-task="f-help" data-auto="r:help kind=rstudio topic=sqrt">Open the help page for <code>sqrt</code>, and find the section called Examples.</li>
+    <li data-task="f-search" data-auto="r:help kind=rstudio topic~??">Search the help pages with <code>??substring</code>, and open one of the pages it finds.</li>
+  </ol>
+</div>
+<div class="q" data-q="f-q-log" data-accept="^5\.59[78]\d*$||^5\.6$" data-placeholder="A number">
+  <div class="q-text">What is the log2 of the square root of 2345? Give at least three decimal places.</div>
+  <div class="q-model">5.597686 (from <code>log2(sqrt(2345))</code>)</div>
+</div>
+<div class="q" data-q="f-q-quotes" data-type="mcq">
+  <div class="q-text">You type <code>my.name &lt;- Ada</code>, without quotes. What happens?</div>
+  <div class="mcq"><label data-correct data-why="Without quotes, R takes Ada to be the name of an object and goes looking for it. Text always needs quotes."><input type="radio"> R reports <code>Error: object &#39;Ada&#39; not found</code></label><label data-why="Only if the text is in quotes, as &lt;code&gt;&amp;quot;Ada&amp;quot;&lt;/code&gt;."><input type="radio"> <code>my.name</code> now holds the text Ada</label><label data-why="R stops with an error instead, and &lt;code&gt;my.name&lt;/code&gt; isn’t changed."><input type="radio"> <code>my.name</code> is left empty</label></div>
+</div>
+<div class="q" data-q="f-q-default" data-type="mcq">
+  <div class="q-text">The help page for <code>round</code> shows <code>round(x, digits = 0)</code> under Usage. What does <code>digits = 0</code> tell you?</div>
+  <div class="mcq"><label data-correct data-why="0 is the default value of digits. &lt;code&gt;round(z, 2)&lt;/code&gt; would round z to two decimal places instead."><input type="radio"> If you leave out <code>digits</code>, R rounds to 0 decimal places, which means to a whole number</label><label data-why="An argument that has a default value can be left out."><input type="radio"> You always have to give a value for <code>digits</code></label><label data-why="0 is just the value R uses when you don’t give one. &lt;code&gt;round(z, 2)&lt;/code&gt;, for example, rounds to two decimal places."><input type="radio"> <code>digits</code> can only ever be 0</label></div>
+</div>
+
+</section>
+
+<section class="chapter" id="vectors" data-num="4" data-title="Vectors" data-bench="rstudio" hidden>
+  <h1>Vectors</h1>
+  <div class="meta-row"><span class="pill time">≈ 25 min</span></div>
+  <p class="lede">In R, everything is a vector: an ordered set of values that are all of the same type. Even a single number is a vector, with just one value in it.</p>
+
+<h2 id="v-what">Everything is a vector</h2>
+<p>When you typed <code>x &lt;- 39</code>, you made a vector of length 1, whose first (and only) value is 39. This is why R prints <code>[1]</code> before an answer: the number in square brackets is the position, within the vector, of the first value on that line.</p>
+<p>All the values in a vector must be of the same type. The types you will use most are:</p>
+<div class="table"><table class="plain"><thead><tr><th>Type</th><th>What it holds</th><th>Examples</th></tr></thead><tbody><tr><td>numeric</td><td>numbers, with or without decimal places</td><td><code>3</code>, <code>0.25</code>, <code>-1.5</code></td></tr><tr><td>character</td><td>text, in quotes</td><td><code>"WT"</code>, <code>"Ada"</code></td></tr><tr><td>logical</td><td>TRUE or FALSE</td><td><code>TRUE</code>, <code>FALSE</code></td></tr></tbody></table></div>
+<p>There are others too, such as <b>factors</b>, for text values that come from a fixed set of categories (the genotypes in an experiment, say), and dates.</p>
+
+<h2 id="v-c">Making vectors with c()</h2>
+<p>The function <code>c()</code>, which stands for <em>combine</em>, puts values together into a vector:</p>
+<div class="codefile rblock"><div class="cf-head"><span class="cf-name">R</span><span class="grow"></span><button class="do showme" type="button" data-rs-type="simple.vector &lt;- c(1, 2, 4, 6, 3)
+some.names &lt;- c(&quot;Ada&quot;, &quot;Grace&quot;, &quot;Alan&quot;, &quot;Mary&quot;, &quot;Rosalind&quot;)">show me</button><button class="btn small" type="button" data-copy-code="1">Copy</button></div><pre class="codeblock">simple.vector &lt;- c(1, 2, 4, 6, 3)
+some.names &lt;- c(&quot;Ada&quot;, &quot;Grace&quot;, &quot;Alan&quot;, &quot;Mary&quot;, &quot;Rosalind&quot;)</pre></div>
+<p>Because a vector can only hold one type of value, R converts values when you mix types. Any number can be written as text, but most text can’t be turned into a number, so if you mix numbers with text, you get a vector of text:</p>
+<div class="rout"><pre>&gt; c(1, 2, 3, &quot;fred&quot;)
+[1] &quot;1&quot;    &quot;2&quot;    &quot;3&quot;    &quot;fred&quot;</pre></div>
+<p>The quotes in the output show that the numbers have become text, and you can no longer do arithmetic with them. Watch out for this when you read in data from files: a single word in a column of numbers turns the whole column into text.</p>
+
+<h2 id="v-make">Functions that make vectors</h2>
+<p>For a run of whole numbers, use the colon operator: <code>4:20</code> gives you every whole number from 4 to 20.</p>
+<div class="rout"><pre>&gt; 4:20
+ [1]  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20</pre></div>
+<p><code>seq()</code> makes other sequences. Its arguments are <code>from</code>, <code>to</code>, <code>by</code> and <code>length.out</code>. None of them is required: you give it enough of them to describe the sequence you want.</p>
+<div class="rout"><pre>&gt; seq(from = 2, by = 3, to = 14)
+[1]  2  5  8 11 14
+&gt; seq(from = 3, by = 10, to = 40)
+[1]  3 13 23 33
+&gt; seq(from = 5, by = 3.6, length.out = 5)
+[1]  5.0  8.6 12.2 15.8 19.4</pre></div>
+<p><code>rep()</code> repeats values. With <code>times</code> it repeats the whole vector, and with <code>each</code> it repeats each value in turn:</p>
+<div class="rout"><pre>&gt; rep(c(&quot;dog&quot;, &quot;cat&quot;), times = 3)
+[1] &quot;dog&quot; &quot;cat&quot; &quot;dog&quot; &quot;cat&quot; &quot;dog&quot; &quot;cat&quot;
+&gt; rep(c(&quot;dog&quot;, &quot;cat&quot;), each = 3)
+[1] &quot;dog&quot; &quot;dog&quot; &quot;dog&quot; &quot;cat&quot; &quot;cat&quot; &quot;cat&quot;</pre></div>
+
+<h2 id="v-look">Looking at long vectors</h2>
+<p>A long vector fills the Console, and the numbers in square brackets at the start of each line help you to find your way through it. To see just part of it, <code>head()</code> shows you the first six values and <code>tail()</code> the last six; both have an argument <code>n</code> for a different number, as in <code>tail(number.series, n = 10)</code>. <code>length()</code> tells you how many values there are.</p>
+<div class="activity">
+  <div class="act-t">Make some vectors</div>
+  <ol class="steps">
+    <li data-task="v-c" data-rcheck="identical(as.numeric(some.numbers), c(2, 5, 8, 12, 16))">Create a vector called <code>some.numbers</code> that contains the numbers 2, 5, 8, 12 and 16.</li>
+    <li data-task="v-colon" data-rcheck="identical(as.numeric(number.range), c(5, 6, 7, 8, 9))">Use the colon operator to make a vector called <code>number.range</code> that contains the numbers 5 to 9.</li>
+    <li data-task="v-seq" data-rcheck="length(number.series) == 100 &amp;&amp; (isTRUE(all.equal(as.numeric(number.series), seq(2, by = 3, length.out = 100))) || isTRUE(all.equal(as.numeric(number.series), seq(2, by = 3, length.out = 100) * 1000)))">Use <code>seq()</code> to make a vector of 100 values that starts at 2 and goes up by 3 each time, and store it in a new object called <code>number.series</code>.</li>
+    <li data-task="v-tail" data-auto="r:input kind=rstudio line%tail(number.series">Print <code>number.series</code> to see the whole of it, and then look at its first and last values with <code>head()</code> and <code>tail()</code>.</li>
+    <li data-task="v-rep" data-rcheck="length(genotypes) == 100 &amp;&amp; setequal(as.character(genotypes), c(&quot;WT&quot;, &quot;KO1&quot;, &quot;KO2&quot;, &quot;KO3&quot;)) &amp;&amp; all(table(as.character(genotypes)) == 25)">Use <code>rep()</code> to make a vector of 100 values that contains 25 each of WT, KO1, KO2 and KO3, and store it in an object called <code>genotypes</code>.</li>
+  </ol>
+</div>
+<div class="q" data-q="v-q-last" data-accept="^299$" data-hint="tail() shows you the last values" data-placeholder="A number">
+  <div class="q-text">What is the last value in <code>number.series</code>?</div>
+  <div class="q-model">299. The series goes 2, 5, 8 and so on: 2 + 99 × 3 = 299.</div>
+</div>
+<div class="q" data-q="v-q-mix" data-type="mcq">
+  <div class="q-text">What does <code>c(1, 2, 3, &quot;fred&quot;)</code> give you?</div>
+  <div class="mcq"><label data-correct data-why="A vector can only hold one type, and text can’t become a number, so R turns the numbers into text."><input type="radio"> A vector of text: <code>&quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;fred&quot;</code></label><label data-why="R doesn’t give an error here. It converts the values so that they are all of the same type."><input type="radio"> An error, because you can’t mix numbers and text</label><label data-why="R doesn’t drop values. It converts them so that they are all of the same type."><input type="radio"> The numbers 1, 2 and 3, with <code>&quot;fred&quot;</code> left out</label></div>
+</div>
+<div class="q" data-q="v-q-seq" data-type="mcq">
+  <div class="q-text">Which of these commands gives you <code>1 3 5 7 9</code>?</div>
+  <div class="mcq"><label data-correct data-why="From 1 to 9, going up by 2 each time."><input type="radio"> <code>seq(from = 1, to = 9, by = 2)</code></label><label data-why="length.out = 4 asks for four values, so this gives 1 3 5 7."><input type="radio"> <code>seq(from = 1, by = 2, length.out = 4)</code></label><label data-why="rep() repeats values: this gives 1 1 2 2 3 3 and so on, up to 9 9."><input type="radio"> <code>rep(1:9, each = 2)</code></label></div>
+</div>
+
+</section>
+
+<section class="chapter" id="vectorised" data-num="5" data-title="Vectorised operations" data-bench="rstudio" hidden>
+  <h1>Vectorised operations</h1>
+  <div class="meta-row"><span class="pill time">≈ 20 min</span></div>
+  <p class="lede">When you do arithmetic with a vector, R does it to every value at once. This is called a <b>vectorised operation</b>, and it is what makes R so quick to work with: one short command can change thousands of values.</p>
+
+<p>Compare these three commands:</p>
+<div class="rout"><pre>&gt; 2 + 3
+[1] 5
+&gt; c(2, 4) + c(3, 5)
+[1] 5 9
+&gt; simple.vector * 100
+[1] 100 200 400 600 300</pre></div>
+<p>You don’t have to tell R to go through the values one at a time: it simply applies the operation to all of them. Three rules decide how the values of two vectors are matched up.</p>
+
+<h2 id="vo-rules">The rules</h2>
+<p><b>1. Values in the same position are matched.</b> The first value of one vector goes with the first value of the other, the second with the second, and so on.</p>
+<figure class="vecop" role="img" aria-label="Vector 1 3 4 5 6 7 8 9 10 + Vector 2 11 12 13 14 15 16 17 18 gives 14 16 18 20 22 24 26 28"><div class="vrow"><span class="vlab">Vector 1</span><span class="vcells"><span class="vc">3</span><span class="vc">4</span><span class="vc">5</span><span class="vc">6</span><span class="vc">7</span><span class="vc">8</span><span class="vc">9</span><span class="vc">10</span></span></div><div class="vrow"><span class="vlab"></span><span class="vopsym">+</span></div><div class="vrow"><span class="vlab">Vector 2</span><span class="vcells"><span class="vc">11</span><span class="vc">12</span><span class="vc">13</span><span class="vc">14</span><span class="vc">15</span><span class="vc">16</span><span class="vc">17</span><span class="vc">18</span></span></div><div class="vrow vline"><span class="vlab"></span><span class="vrule"></span></div><div class="vrow"><span class="vlab">Result</span><span class="vcells"><span class="vc res">14</span><span class="vc res">16</span><span class="vc res">18</span><span class="vc res">20</span><span class="vc res">22</span><span class="vc res">24</span><span class="vc res">26</span><span class="vc res">28</span></span></div><figcaption><code>3:10 + 11:18</code>: each value is added to the value in the same position of the other vector.</figcaption></figure>
+<p><b>2. A shorter vector is recycled.</b> If one of the vectors is shorter, R goes back to its start and uses its values again, as many times as it needs to.</p>
+<figure class="vecop" role="img" aria-label="Vector 1 3 4 5 6 7 8 9 10 + Vector 2 11 12 13 14 gives 14 16 18 20 18 20 22 24"><div class="vrow"><span class="vlab">Vector 1</span><span class="vcells"><span class="vc">3</span><span class="vc">4</span><span class="vc">5</span><span class="vc">6</span><span class="vc">7</span><span class="vc">8</span><span class="vc">9</span><span class="vc">10</span></span></div><div class="vrow"><span class="vlab"></span><span class="vopsym">+</span></div><div class="vrow"><span class="vlab">Vector 2</span><span class="vcells"><span class="vc">11</span><span class="vc">12</span><span class="vc">13</span><span class="vc">14</span><span class="vc rec">11</span><span class="vc rec">12</span><span class="vc rec">13</span><span class="vc rec">14</span></span></div><div class="vrow vline"><span class="vlab"></span><span class="vrule"></span></div><div class="vrow"><span class="vlab">Result</span><span class="vcells"><span class="vc res">14</span><span class="vc res">16</span><span class="vc res">18</span><span class="vc res">20</span><span class="vc res">18</span><span class="vc res">20</span><span class="vc res">22</span><span class="vc res">24</span></span></div><figcaption><code>3:10 + 11:14</code>: the four values of the second vector are used twice (the paler ones are the second time round).</figcaption></figure>
+<p>This is why <code>simple.vector * 100</code> works: 100 is a vector with one value, which is recycled for every value of <code>simple.vector</code>.</p>
+<p><b>3. If it doesn’t fit exactly, you get a warning.</b> When the length of the longer vector isn’t a multiple of the length of the shorter one, R still recycles the shorter vector and gives you an answer, but it warns you, because this is usually a sign of a mistake.</p>
+<figure class="vecop" role="img" aria-label="Vector 1 3 4 5 6 7 8 9 10 + Vector 2 11 12 13 gives 14 16 18 17 19 21 20 22"><div class="vrow"><span class="vlab">Vector 1</span><span class="vcells"><span class="vc">3</span><span class="vc">4</span><span class="vc">5</span><span class="vc">6</span><span class="vc">7</span><span class="vc">8</span><span class="vc">9</span><span class="vc">10</span></span></div><div class="vrow"><span class="vlab"></span><span class="vopsym">+</span></div><div class="vrow"><span class="vlab">Vector 2</span><span class="vcells"><span class="vc">11</span><span class="vc">12</span><span class="vc">13</span><span class="vc rec">11</span><span class="vc rec">12</span><span class="vc rec">13</span><span class="vc rec">11</span><span class="vc rec">12</span></span></div><div class="vrow vline"><span class="vlab"></span><span class="vrule"></span></div><div class="vrow"><span class="vlab">Result</span><span class="vcells"><span class="vc res">14</span><span class="vc res">16</span><span class="vc res">18</span><span class="vc res">17</span><span class="vc res">19</span><span class="vc res">21</span><span class="vc res">20</span><span class="vc res">22</span></span></div><div class="vwarn">Warning message:
+In 3:10 + 11:13 :
+  longer object length is not a multiple of shorter object length</div><figcaption><code>3:10 + 11:13</code>: the second vector runs out part of the way through its third time round.</figcaption></figure>
+<p>A warning is not the same as an error. After an error, R stops and gives you nothing; after a warning, you do get an answer, but R is telling you that it may not be the one you wanted.</p>
+
+<h2 id="vo-functions">Functions work on whole vectors too</h2>
+<p>Many functions work in the same way. <code>sqrt()</code>, <code>log2()</code> and <code>round()</code> work on each value of a vector, and <code>nchar()</code> counts the characters in each piece of text:</p>
+<div class="rout"><pre>&gt; log2(c(2, 4, 8, 1024))
+[1]  1  2  3 10
+&gt; nchar(some.names)
+[1] 3 5 4 4 8</pre></div>
+<p>Other functions summarise a whole vector with a single value. Among the most useful are <code>length()</code>, <code>sum()</code>, <code>mean()</code>, <code>median()</code>, <code>sd()</code> (the standard deviation), <code>min()</code> and <code>max()</code>.</p>
+<div class="activity">
+  <div class="act-t">Vectorised maths</div>
+  <ol class="steps">
+    <li data-task="vo-sub" data-rcheck="(function(v) { identical(as.numeric(v), c(-3, -1, 1, 4, 7)) })(.Last.value)">Subtract <code>number.range</code> from <code>some.numbers</code>, using the <code>-</code> operator in the same way as you would for any other subtraction, and look at the result.</li>
+    <li data-task="vo-1000" data-rcheck="isTRUE(all.equal(as.numeric(number.series), seq(2, by = 3, length.out = 100) * 1000))">Multiply every value in <code>number.series</code> by 1000, and store the result in <code>number.series</code>, replacing the original values.</li>
+    <li data-task="vo-warn" data-auto="r:input kind=rstudio line%3:10+11:13">Run <code>3:10 + 11:13</code> to see the warning for yourself.</li>
+    <li data-task="vo-median" data-rcheck="(function(v) { isTRUE(all.equal(v, median(number.series))) })(.Last.value)">Work out the median of <code>number.series</code>.</li>
+  </ol>
+</div>
+<div class="q" data-q="vo-q-sub" data-accept="^(\[1\] )?-3,? -1,? 1,? 4,? 7$" data-placeholder="The values, separated by spaces">
+  <div class="q-text">What do you get when you subtract <code>number.range</code> from <code>some.numbers</code>?</div>
+  <div class="q-model"><code>-3 -1  1  4  7</code>: 2 − 5, 5 − 6, 8 − 7, 12 − 8 and 16 − 9.</div>
+</div>
+<div class="q" data-q="vo-q-last" data-accept="^299,?000$||^2\.99e\+?0?5$" data-placeholder="A number">
+  <div class="q-text">What is the last value of <code>number.series</code> now?</div>
+  <div class="q-model">299000 (299 × 1000)</div>
+</div>
+<div class="q" data-q="vo-q-recycle" data-type="mcq">
+  <div class="q-text">What does <code>c(1, 2, 3, 4) * c(10, 100)</code> give you?</div>
+  <div class="mcq"><label data-correct data-why="The two values of the shorter vector are recycled: 1 × 10, 2 × 100, 3 × 10 and 4 × 100."><input type="radio"> <code>10 200 30 400</code></label><label data-why="R doesn’t stop when the shorter vector runs out: it goes back to its start and uses it again."><input type="radio"> <code>10 200 3 4</code></label><label data-why="Vectors of different lengths are fine, because R recycles the shorter one. Here 4 is a multiple of 2, so you don’t even get a warning."><input type="radio"> An error, because the vectors are different lengths</label></div>
+</div>
+<div class="optional">
+  <div class="opt-t"><span class="opt-tag">If you have time</span> Centring on the median</div>
+  <p class="opt-note">This part is optional: it doesn’t count towards your certificate.</p>
+
+<p>Before comparing samples, people often centre their values on the median: they subtract the median from every value, so that the middle of the data sits at 0. Work out the median of <code>number.series</code>, subtract it from all of its values, and store the answer in a new object called <code>centred</code>. Then work out the mean and the standard deviation (<code>sd()</code>) of <code>centred</code>.</p>
+<div class="activity">
+  <div class="act-t">Centre the values</div>
+  <ol class="steps">
+    <li data-task="vo-centre" data-rcheck="any(vapply(ls(globalenv()), function(nm) { o &lt;- get(nm, envir = globalenv()); is.numeric(o) &amp;&amp; length(o) == 100 &amp;&amp; isTRUE(all.equal(as.numeric(o), as.numeric(number.series - median(number.series)))) }, logical(1)))">Make <code>centred</code>, the values of <code>number.series</code> centred on their median.</li>
+  </ol>
+</div>
+<div class="q" data-q="vo-q-centre">
+  <div class="q-text">What are the mean and the standard deviation of the centred values? Compare the standard deviation with that of <code>number.series</code> itself.</div>
+  <div class="q-model">The mean is 0 and the standard deviation is 87034.48, the same as the standard deviation of <code>number.series</code>. Moving every value by the same amount moves the middle of the data, but it doesn’t change how spread out the values are.</div>
+</div>
+
+</div>
+
+</section>
+
+<section class="chapter" id="select" data-num="6" data-title="Comparing and selecting" data-bench="rstudio" hidden>
+  <h1>Comparing and selecting values</h1>
+  <div class="meta-row"><span class="pill time">≈ 15 min</span></div>
+  <p class="lede">Comparisons are vectorised too. Comparing a vector with a value gives you a TRUE or a FALSE for every value, which you can use to count values or to pick them out.</p>
+
+<h2 id="sv-compare">Comparisons</h2>
+<p>R has six comparison operators:</p>
+<div class="table"><table class="plain"><thead><tr><th>Operator</th><th>Meaning</th></tr></thead><tbody><tr><td><code>==</code></td><td>equal to (with two equals signs, because a single <code>=</code> is used for naming arguments)</td></tr><tr><td><code>!=</code></td><td>not equal to</td></tr><tr><td><code>&lt;</code> and <code>&gt;</code></td><td>less than, and greater than</td></tr><tr><td><code>&lt;=</code> and <code>&gt;=</code></td><td>less than or equal to, and greater than or equal to</td></tr></tbody></table></div>
+<p>Like arithmetic, comparisons are done for every value of a vector, and the answer has a <code>TRUE</code> or a <code>FALSE</code> for each value:</p>
+<div class="rout"><pre>&gt; some.numbers
+[1]  2  5  8 12 16
+&gt; some.numbers &gt; 6
+[1] FALSE FALSE  TRUE  TRUE  TRUE
+&gt; some.names == &quot;Mary&quot;
+[1] FALSE FALSE FALSE  TRUE FALSE</pre></div>
+<p>An answer like this is a <b>logical vector</b>. When you do arithmetic with <code>TRUE</code> and <code>FALSE</code>, R counts <code>TRUE</code> as 1 and <code>FALSE</code> as 0, so <code>sum()</code> tells you how many of the values passed the test:</p>
+<div class="rout"><pre>&gt; sum(some.numbers &gt; 6)
+[1] 3</pre></div>
+
+<h2 id="sv-select">Selecting values</h2>
+<p>Square brackets after the name of a vector select values from it. Inside the brackets you can give the positions of the values you want, or a logical vector that says, for each value, whether you want it:</p>
+<div class="table"><table class="plain"><thead><tr><th>Code</th><th>Gives you</th><th>Which is</th></tr></thead><tbody><tr><td><code>some.numbers[2]</code></td><td><code>5</code></td><td>the second value</td></tr><tr><td><code>some.numbers[2:4]</code></td><td><code>5 8 12</code></td><td>the second to the fourth values</td></tr><tr><td><code>some.numbers[c(1, 5)]</code></td><td><code>2 16</code></td><td>the first and the fifth values</td></tr><tr><td><code>some.numbers[-1]</code></td><td><code>5 8 12 16</code></td><td>every value except the first</td></tr><tr><td><code>some.numbers[some.numbers &gt; 6]</code></td><td><code>8 12 16</code></td><td>the values that are greater than 6</td></tr></tbody></table></div>
+<p>The last of these is worth reading slowly. <code>some.numbers &gt; 6</code> gives <code>FALSE FALSE TRUE TRUE TRUE</code>, and the square brackets keep the values for which the answer is <code>TRUE</code>. In the Tidyverse course you will use exactly the same tests to choose rows from a table of data.</p>
+<div class="activity">
+  <div class="act-t">Count and select</div>
+  <ol class="steps">
+    <li data-task="sv-test" data-rcheck="(function(v) { identical(v, number.series &gt; 150000) || identical(v, number.series[number.series &gt; 150000]) || identical(v, which(number.series &gt; 150000)) })(.Last.value)">Find out which of the values in <code>number.series</code> are greater than 150000.</li>
+    <li data-task="sv-count" data-rcheck="(function(v) { isTRUE(all.equal(as.numeric(v), sum(number.series &gt; 150000))) })(.Last.value)">Now use <code>sum()</code> to count how many of them are greater than 150000.</li>
+    <li data-task="sv-first" data-rcheck="(function(v) { identical(v, number.series[1:10]) })(.Last.value)">Select the first ten values of <code>number.series</code>, using square brackets.</li>
+    <li data-task="sv-wt" data-rcheck="(function(v) { isTRUE(all.equal(as.numeric(v), 75)) })(.Last.value)">Count how many of the values in <code>genotypes</code> are not WT.</li>
+  </ol>
+</div>
+<div class="q" data-q="sv-q-count" data-accept="^50$" data-placeholder="A number">
+  <div class="q-text">How many of the values in <code>number.series</code> are greater than 150000?</div>
+  <div class="q-model">50, from <code>sum(number.series &gt; 150000)</code>.</div>
+</div>
+<div class="q" data-q="sv-q-pick" data-type="mcq">
+  <div class="q-text">What does <code>some.numbers[some.numbers &lt; 10]</code> give you?</div>
+  <div class="mcq"><label data-correct data-why="The test gives TRUE for the first three values, so the square brackets keep those three."><input type="radio"> <code>2 5 8</code></label><label data-why="That is what the test inside the brackets gives. The square brackets then use it to select values from some.numbers."><input type="radio"> <code>TRUE TRUE TRUE FALSE FALSE</code></label><label data-why="That is how many values pass the test, which is what sum(some.numbers &amp;lt; 10) would tell you."><input type="radio"> <code>3</code></label></div>
+</div>
+
+</section>
+
+<section class="chapter" id="random" data-num="7" data-title="Random numbers" data-bench="rstudio" hidden>
+  <h1>Random numbers and a t-test</h1>
+  <div class="meta-row"><span class="pill time">≈ 15 min</span></div>
+  <p class="lede">R can generate random numbers from many statistical distributions, and it has functions for all the common statistical tests. Testing numbers whose true mean you know is a good way to get a feel for how a test behaves.</p>
+
+<p><code>rnorm()</code> draws random numbers from a normal distribution. Its first argument, <code>n</code>, is how many numbers you want, and its other two arguments, <code>mean</code> and <code>sd</code>, set the mean and the standard deviation of the distribution. If you leave those two out, R uses a mean of 0 and a standard deviation of 1. There are similar functions for other distributions, such as <code>runif()</code> (uniform), <code>rpois()</code> (Poisson) and <code>rbinom()</code> (binomial).</p>
+<p><code>t.test()</code> carries out a t-test. Given one vector, it tests whether the mean of its values could be 0; given two, it tests whether their means could be the same. Here it is comparing two small sets of numbers:</p>
+<div class="rout"><pre>&gt; t.test(c(1, 5, 3), c(10, 15, 30))
+
+	Welch Two Sample t-test
+
+data:  c(1, 5, 3) and c(10, 15, 30)
+t = -2.5058, df = 2.1475, p-value = 0.1206
+alternative hypothesis: true difference in means is not equal to 0
+95 percent confidence interval:
+ -40.00292   9.33625
+sample estimates:
+mean of x mean of y 
+  3.00000  18.33333 </pre></div>
+<p>The line to look at first is the one with the <b>p-value</b>. This is the probability of getting a difference at least as big as the one in your data if there were really no difference at all. By convention, a p-value below 0.05 is called significant. Here it is 0.12, so although the means of the two sets look very different (3 and 18.3), there are too few values, and they are too variable, for the difference to be significant. R has functions for many other tests too, such as <code>cor.test()</code> for correlations and <code>aov()</code> for analysis of variance.</p>
+<div class="callout concept">
+  <div class="co-t">Random numbers are different every time</div>
+  <p>Each time you run <code>rnorm()</code> you get a different set of numbers, so your results won’t match anyone else’s, or even your own the next time you run the same command. When you need random numbers that you can reproduce, run <code>set.seed()</code> first, with any whole number you like: after <code>set.seed(42)</code>, <code>rnorm(3)</code> always gives the same three numbers.</p>
+</div>
+<div class="activity">
+  <div class="act-t">Test some random numbers</div>
+  <ol class="steps">
+    <li data-task="r-norm" data-rcheck="is.numeric(normal.numbers) &amp;&amp; length(normal.numbers) == 20">Use <code>rnorm()</code> to generate 20 numbers from a normal distribution with a mean of 0 and a standard deviation of 1 (the defaults), and store them in an object called <code>normal.numbers</code>.</li>
+    <li data-task="r-test" data-rcheck="(function(v) { inherits(v, &quot;htest&quot;) })(.Last.value)">Give <code>normal.numbers</code> to <code>t.test()</code> to test whether their mean is significantly different from 0, and find the p-value.</li>
+    <li data-task="r-mean1" data-auto="r:input kind=rstudio line%rnorm( line%mean=1">Replace <code>normal.numbers</code> with a new set of 20 numbers from a distribution with a mean of 1, using the <code>mean</code> argument of <code>rnorm()</code>. Then test them with <code>t.test()</code> again.</li>
+  </ol>
+</div>
+<div class="q" data-q="r-q-p">
+  <div class="q-text">Write down the p-values of your two t-tests. Which of them was significant, and is that what you expected?</div>
+  <div class="q-model">Your numbers will be different from anyone else’s, but usually the first p-value (true mean 0) is well above 0.05, so the test finds no significant difference from 0, and the second (true mean 1) is far below 0.05, which is significant. Both results are what you would expect, because the first set of numbers really did come from a distribution with a mean of 0, and the second from one with a mean of 1.</div>
+</div>
+<div class="q" data-q="r-q-false" data-type="mcq">
+  <div class="q-text">You test 20 numbers made by <code>rnorm(20)</code> and get a p-value of 0.03. What does that mean?</div>
+  <div class="mcq"><label data-correct data-why="The numbers really did come from a distribution with a mean of 0. A cut-off of 0.05 means accepting that, by chance, one test in twenty will look significant when there is nothing there."><input type="radio"> It is a false positive: even when there is no real difference, about one test in twenty gives a p-value below 0.05</label><label data-why="rnorm() is fine. Random samples sometimes look unusual, purely by chance."><input type="radio"> <code>rnorm()</code> isn’t working properly</label><label data-why="It is, because rnorm(20) uses a mean of 0. The test has been fooled by chance."><input type="radio"> The true mean of the distribution isn’t 0</label></div>
+</div>
+<div class="optional">
+  <div class="opt-t"><span class="opt-tag">If you have time</span> How many values do you need?</div>
+  <p class="opt-note">This part is optional: it doesn’t count towards your certificate.</p>
+
+<p>Make two vectors of values, one drawn from a normal distribution with a mean of 10 and a standard deviation of 2, and the other from a distribution with a mean of 10.1 and a standard deviation of 2. Then test them against each other:</p>
+<div class="codefile rblock"><div class="cf-head"><span class="cf-name">R</span><span class="grow"></span><button class="do showme" type="button" data-rs-type="first &lt;- rnorm(100, mean = 10, sd = 2)
+second &lt;- rnorm(100, mean = 10.1, sd = 2)
+t.test(first, second)">show me</button><button class="btn small" type="button" data-copy-code="1">Copy</button></div><pre class="codeblock">first &lt;- rnorm(100, mean = 10, sd = 2)
+second &lt;- rnorm(100, mean = 10.1, sd = 2)
+t.test(first, second)</pre></div>
+<p>How many values do you need in each vector before the t-test can reliably tell that the two means are different? Try 1,000 values and then 10,000, and run each test several times.</p>
+<div class="q" data-q="r-q-power">
+  <div class="q-text">How many values did you need?</div>
+  <div class="q-model">With 100 or even 1,000 values in each vector, the test usually misses the difference. A difference of 0.1 is only a twentieth of the standard deviation, and you need around 6,300 values in each vector to detect it 80% of the time, and over 10,000 to detect it 95% of the time. Small differences need large samples.</div>
+</div>
+
+</div>
+
+</section>
+
+<section class="chapter" id="structures" data-num="8" data-title="Data structures" data-bench="rstudio" hidden>
+  <h1>Lists and data frames</h1>
+  <div class="meta-row"><span class="pill time">≈ 20 min</span></div>
+  <p class="lede">Vectors are the building blocks of all the data in R. To hold data that is more complicated than a single set of values, R puts vectors together into lists and data frames.</p>
+
+<div class="ds-row" role="img" aria-label="A vector is a single set of values of one type. A list holds several named vectors, which can have different lengths. A data frame holds several named vectors of the same length, which line up in rows."><div class="ds"><b>Vector</b><span class="ds-sub">one dimension, a single type</span><div class="ds-cols"><div class="ds-col n"><span class="ds-name">scores</span><span class="v">0.8</span><span class="v">1.2</span><span class="v">3.3</span><span class="v">1.8</span><span class="v">2.7</span></div></div></div><div class="ds"><b>List</b><span class="ds-sub">named vectors of any types and lengths</span><div class="ds-cols"><div class="ds-col n"><span class="ds-name">ratios</span><span class="v">0.8</span><span class="v">1.2</span><span class="v">3.3</span><span class="v">1.8</span><span class="v">2.7</span></div><div class="ds-col n"><span class="ds-name">counts</span><span class="v">100</span><span class="v">300</span><span class="v">200</span></div></div></div><div class="ds"><b>Data frame or tibble</b><span class="ds-sub">named vectors of the same length, so the values form rows</span><div class="ds-cols"><div class="ds-col n"><span class="ds-name">mon</span><span class="v">0.8</span><span class="v">0.6</span><span class="v">0.2</span><span class="v">0.8</span><span class="v">0.6</span></div><div class="ds-col n"><span class="ds-name">tue</span><span class="v">0.9</span><span class="v">0.7</span><span class="v">0.3</span><span class="v">0.8</span><span class="v">1.0</span></div><div class="ds-col n"><span class="ds-name">wed</span><span class="v">0.8</span><span class="v">0.5</span><span class="v">0.3</span><span class="v">0.9</span><span class="v">0.9</span></div><div class="ds-col l"><span class="ds-name">pass</span><span class="v">T</span><span class="v">F</span><span class="v">F</span><span class="v">T</span><span class="v">T</span></div></div></div></div>
+<h2 id="ds-vector">Vectors</h2>
+<p>A vector is a single set of values, all of the same type. You have already worked with plenty of them, and you have used functions such as <code>mean()</code> and <code>sd()</code> that summarise all the values of a vector at once.</p>
+<div class="rout"><pre>&gt; scores &lt;- c(0.8, 1.2, 3.3, 1.8, 2.7)
+&gt; mean(scores)
+[1] 1.96
+&gt; sd(scores)
+[1] 1.035857</pre></div>
+
+<h2 id="ds-list">Lists</h2>
+<p>A list collects several vectors together into a single object. The vectors can be of different types and different lengths, and each has a name. You take a vector out of a list with <code>$</code> followed by its name:</p>
+<div class="codefile rblock"><div class="cf-head"><span class="cf-name">R</span><span class="grow"></span><button class="do showme" type="button" data-rs-type="results &lt;- list(
+  ratios = c(0.8, 1.2, 3.3, 1.8, 2.7),
+  counts = c(100, 300, 200)
+)">show me</button><button class="btn small" type="button" data-copy-code="1">Copy</button></div><pre class="codeblock">results &lt;- list(
+  ratios = c(0.8, 1.2, 3.3, 1.8, 2.7),
+  counts = c(100, 300, 200)
+)</pre></div>
+<div class="rout"><pre>&gt; results$counts
+[1] 100 300 200</pre></div>
+
+<h2 id="ds-df">Data frames</h2>
+<p>A data frame is a list whose vectors all have the same length. Because the vectors line up, a data frame has rows as well as columns, like a table in a spreadsheet: each column is a vector, with values of a single type, and each row holds one set of observations. Most of the data you analyse in R will be in data frames.</p>
+<div class="codefile rblock"><div class="cf-head"><span class="cf-name">R</span><span class="grow"></span><button class="do showme" type="button" data-rs-type="all.results &lt;- data.frame(
+  mon = c(0.8, 0.6, 0.2, 0.8, 0.6),
+  tue = c(0.9, 0.7, 0.3, 0.8, 1.0),
+  wed = c(0.8, 0.5, 0.3, 0.9, 0.9),
+  pass = c(TRUE, FALSE, FALSE, TRUE, TRUE)
+)">show me</button><button class="btn small" type="button" data-copy-code="1">Copy</button></div><pre class="codeblock">all.results &lt;- data.frame(
+  mon = c(0.8, 0.6, 0.2, 0.8, 0.6),
+  tue = c(0.9, 0.7, 0.3, 0.8, 1.0),
+  wed = c(0.8, 0.5, 0.3, 0.9, 0.9),
+  pass = c(TRUE, FALSE, FALSE, TRUE, TRUE)
+)</pre></div>
+<div class="rout"><pre>&gt; all.results
+  mon tue wed  pass
+1 0.8 0.9 0.8  TRUE
+2 0.6 0.7 0.5 FALSE
+3 0.2 0.3 0.3 FALSE
+4 0.8 0.8 0.9  TRUE
+5 0.6 1.0 0.9  TRUE</pre></div>
+<p><code>$</code> works in the same way as it does for a list: <code>all.results$mon</code> is the <code>mon</code> column, as a vector, so <code>mean(all.results$mon)</code> is the mean of that column. <code>head()</code> shows the first rows, <code>nrow()</code> and <code>ncol()</code> count the rows and the columns, and <code>str()</code> summarises the structure of the data frame, with the type of each column and its first few values. The Environment pane lists data frames under <b>Data</b>, and clicking on one opens it in a viewer, as does <code>View()</code> (with a capital V).</p>
+
+<h2 id="ds-tibble">Tibbles</h2>
+<p>A <b>tibble</b> is the tidyverse’s version of a data frame. It holds the same kind of data, but it is nicer to work with: when you print a tibble, it shows the type of each column and only the first ten rows, and it only shows as many columns as fit across the Console. You will use tibbles all through the Tidyverse course.</p>
+<div class="activity">
+  <div class="act-t">Lists and data frames</div>
+  <ol class="steps">
+    <li data-task="ds-list" data-rcheck="is.list(results) &amp;&amp; !is.data.frame(results) &amp;&amp; all(c(&quot;ratios&quot;, &quot;counts&quot;) %in% names(results))">Create the list <code>results</code>, as above.</li>
+    <li data-task="ds-mean" data-rcheck="(function(v) { isTRUE(all.equal(v, 200)) })(.Last.value)">Calculate the mean of the counts in <code>results</code>.</li>
+    <li data-task="ds-df" data-rcheck="is.data.frame(all.results) &amp;&amp; nrow(all.results) == 5 &amp;&amp; all(c(&quot;mon&quot;, &quot;tue&quot;, &quot;wed&quot;, &quot;pass&quot;) %in% names(all.results))">Create the data frame <code>all.results</code>, as above.</li>
+    <li data-task="ds-view" data-auto="r:view kind=rstudio">Open <code>all.results</code> in the viewer, by clicking on it in the Environment pane or with <code>View(all.results)</code>.</li>
+    <li data-task="ds-str" data-auto="r:input kind=rstudio line%str(all.results">Use <code>str()</code> to look at the structure of <code>all.results</code>.</li>
+    <li data-task="ds-mon" data-rcheck="(function(v) { isTRUE(all.equal(v, 0.6)) })(.Last.value)">Calculate the mean of the <code>mon</code> column of <code>all.results</code>.</li>
+  </ol>
+</div>
+<div class="q" data-q="ds-q-mon" data-accept="^0?\.60*$" data-placeholder="A number">
+  <div class="q-text">What is the mean of the <code>mon</code> column?</div>
+  <div class="q-model">0.6, from <code>mean(all.results$mon)</code>.</div>
+</div>
+<div class="q" data-q="ds-q-pass" data-accept="^3$" data-placeholder="A number">
+  <div class="q-text">On how many of the rows is <code>pass</code> TRUE? Use <code>sum()</code> to find out.</div>
+  <div class="q-model">3, from <code>sum(all.results$pass)</code>.</div>
+</div>
+<div class="q" data-q="ds-q-df" data-type="mcq">
+  <div class="q-text">What is the difference between a list and a data frame?</div>
+  <div class="mcq"><label data-correct data-why="That is what gives a data frame its rows, and it is why it looks like a table."><input type="radio"> In a data frame, all the vectors have the same length, so their values line up in rows</label><label data-why="Each column holds a single type, but different columns can hold different types: all.results has both numbers and TRUE/FALSE values."><input type="radio"> A data frame can only hold numbers</label><label data-why="A list can hold any number of vectors, of any types and lengths."><input type="radio"> A list can only hold one vector</label></div>
+</div>
+
+<h2 id="ds-next">What next?</h2>
+<p>You have now met the core of the R language. In the <b>Tidyverse</b> course you will read real data from files into tibbles, choose the rows and columns you need, and draw plots with ggplot2. Before you go, open the last chapter to get your certificate.</p>
+
+</section>
+
+<section class="chapter cert-chapter" id="certificate" data-num="★" data-title="Certificate" data-bench="rstudio" data-cert hidden>
+  <h1>Your certificate</h1>
+  <p class="lede">Your certificate for R basics, with your name on it.</p>
+
+<p>When you have finished every step and question of this course (apart from those marked <b>If you have time</b>), your certificate is unlocked here. It shows your name and the date you finished, and you can download it as a PDF to keep or to send to your tutor.</p>
+<div class="cert-panel" data-cert-panel></div>
+
+</section>
+<!--/CHAPTERS-->
+    </aside>
+
+    <div class="splitter" role="separator" aria-orientation="vertical" title="Drag to resize, or double-click to reset"></div>
+
+    <section class="bench" aria-label="Workbench">
+      <div class="wb-tabs" role="tablist">
+        <button class="wb-tab rail-btn" type="button" id="tutRail" title="Show the instructions (Ctrl+\)" hidden><svg class="ic" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M13 10l2 2-2 2"/></svg><span>Instructions</span></button>
+        <button class="wb-tab on" type="button" role="tab" data-wb="rstudio" title="RStudio, an integrated development environment for R"><svg class="ic" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M12 4v16M3 12h18"/></svg><span class="lbl">RStudio</span><span class="dot"></span></button>
+        <button class="wb-tab" type="button" role="tab" data-wb="editor" title="Your files and a text editor"><svg class="ic" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v1H7l-4 9z"/><path d="M3 19l3.5-8H22l-3.5 8z"/></svg><span class="lbl">Files</span><span class="dot"></span></button>
+        <button class="wb-tab" type="button" role="tab" data-wb="assistant" title="AI assistant"><svg class="ic" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3l2 5.5L19.5 10 14 12l-2 5.5L10 12l-5.5-2L10 8.5z"/><path d="M19 17l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg><span class="lbl">AI</span><span class="dot"></span></button>
+        <button class="bench-close" type="button" aria-label="Back to the instructions">✕ Instructions</button>
+      </div>
+      <div class="wb-body">
+        <div class="wb-pane" data-wb="rstudio"><div id="rsRoot"></div></div>
+        <div class="wb-pane" data-wb="editor" hidden><div id="edRoot"></div></div>
+        <div class="wb-pane" data-wb="assistant" hidden><div id="aiRoot"></div></div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<button class="bench-fab" type="button" aria-label="Open the workbench"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M12 4v16M3 12h18"/></svg>Workbench</button>
+<noscript><p style="padding:20px">This page needs JavaScript.</p></noscript>
+
+<script>window.RWB_STARTERS = [{"p":"Child_Variants.csv","s":1594229},{"p":"brain_bodyweight.txt","s":1385},{"p":"broken_selects.R","s":332},{"p":"chr_data.txt","s":36002},{"p":"expr_data.txt","s":430},{"p":"many_values.txt","s":2205524},{"p":"neutrophils.csv","s":385},{"p":"small_file.txt","s":438},{"p":"transform_data.txt","s":592},{"p":"trumpton.txt","s":199}];
+window.RWB_STARTERS_VERSION = 1;</script>
+<script>window.RT_COURSES = [{"id":"r-basics","page":"r-basics.html","dataPage":"rbasics","title":"R basics","part":1,"programme":"Part 1 of Introduction to R","certSummary":"Using R in RStudio: calculations, objects, functions and help, vectors and vectorised operations, and R’s data structures.","seal":"R basics","time":"About 2½ hours","tasks":["s-name","s-first","c-mult","c-div","c-brackets","c-plus","c-new","c-run","c-save","o-x","o-y","o-z","o-show","f-sqrt","f-name","f-nchar","f-substr","f-help","f-search","v-c","v-colon","v-seq","v-tail","v-rep","vo-sub","vo-1000","vo-warn","vo-median","sv-test","sv-count","sv-first","sv-wt","r-norm","r-test","r-mean1","ds-list","ds-mean","ds-df","ds-view","ds-str","ds-mon"],"questions":["c-q-mult","c-q-div","c-q-order","o-q-z","o-q-name","o-q-update","f-q-log","f-q-quotes","f-q-default","v-q-last","v-q-mix","v-q-seq","vo-q-sub","vo-q-last","vo-q-recycle","sv-q-count","sv-q-pick","r-q-p","r-q-false","ds-q-mon","ds-q-pass","ds-q-df"]},{"id":"tidyverse","page":"tidyverse.html","dataPage":"tidyverse","title":"Tidyverse","part":2,"programme":"Part 2 of Introduction to R","certSummary":"Working with data in the tidyverse: reading files with readr, choosing rows and columns with dplyr, combining steps with pipes, and drawing plots with ggplot2.","seal":"Tidyverse","time":"About 3 hours","tasks":["t-name","t-script","t-install","t-library","rd-wd","rd-small","rd-view","rd-median","rd-child","rd-print","rd-mean","fl-a","fl-80","fl-sample","fl-mt","fl-70","fl-qual","fl-gene","fl-cols","pp-quality","pp-chr","pp-dbsnp","pl-read","pl-scatter","pl-blue","pl-log","pl-category","mo-col","mo-hist","mo-bin","mo-dens","mo-bar","lb-title","lb-text"],"questions":["rd-q-median","rd-q-mean","rd-q-sd","rd-q-type","td-q-batch","td-q-tidy","fl-q-80","fl-q-gene","fl-q-which","fl-q-quotes","pp-q-quality","pp-q-dbsnp","pp-q-pipe","pl-q-extinct","pl-q-fixed","mo-q-ref","mo-q-colbar","mo-q-bin","lb-q-plus"]}];</script>
+<script>window.RT_PAGE = {"course":"R basics (the first part of Introduction to R), which teaches base R in RStudio","aiData":"The course’s data are in ~/data: small_file.txt (tab-separated: 40 samples, with the columns Sample, Length and Category, which is A, B, C or D), Child_Variants.csv (25,822 variants found in a child’s exome, with the columns CHR, POS, dbSNP, REF, ALT, QUAL, GENE, ENST, MutantReads, COVERAGE and MutantReadPercent; dbSNP is \".\" where a variant has no ID), brain_bodyweight.txt (tab-separated: 27 species, with the columns Species, Category (Domesticated, Wild or Extinct), body (kg), brain (g), log.brain and log.body), trumpton.txt (tab-separated: 7 people, with LastName, FirstName, Age, Weight and Height), expr_data.txt (Gene, WT, KO, pValue), transform_data.txt (WT, KO, difference), many_values.txt (100,000 values, each with a genotype, WT or KO), neutrophils.csv (the columns DMSO, TGX-221, PI103 and Akt1, with missing values), chr_data.txt, and broken_selects.R (a script with mistakes in it, which an exercise asks the student to fix). This first course mostly works with values the student types in (numbers, text, and vectors made with c(), :, seq(), rep() and rnorm()), and ends with data frames.","aiStyle":"Show small, complete examples that run here. This course teaches base R, without packages: calculations, objects (<- and ->), functions and their arguments (by position and by name), help (?name and ??words), vectors (c(), the colon operator, seq(), rep()), vectorised operations and recycling, selecting values with [ ], rnorm() and t.test(), and lists and data frames with $. Use base R in your examples, and leave the tidyverse for the second course unless the student asks about it.","aiChat":["What is the difference between <- and = in R?","Why does c(1, 2, 3, \"fred\") turn the numbers into text?","What does recycling mean when I add two vectors of different lengths?","What does “Error: object not found” mean, and how do I fix it?"],"ex":{"obj":"all.results","Obj":"All.results","dataName":"your data frame","file":"~/data/small_file.txt","read":"small <- read.delim(\"~/data/small_file.txt\")","mean":"mean(all.results$mon)","cols":["mon","tue","wed","pass","Sample","Length","Category"],"factors":["Category","Sample","pass"]}};</script>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/core.js"></script>
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/cert.js"></script>
+<script src="assets/js/vfs.js"></script>
+<script src="assets/js/project.js"></script>
+<script src="assets/js/shell.js"></script>
+<script src="assets/js/shell-lang.js"></script>
+<script src="assets/js/tools-wasm.js"></script>
+<script src="assets/js/shell-extra.js"></script>
+<script src="assets/js/shell-r.js"></script>
+<script src="assets/js/terminal.js"></script>
+<script src="assets/vendor/codemirror/codemirror.js"></script>
+<script src="assets/vendor/codemirror/r.js"></script>
+<script src="assets/vendor/codemirror/markdown.js"></script>
+<script src="assets/vendor/codemirror/yaml.js"></script>
+<script src="assets/vendor/codemirror/shell.js"></script>
+<script src="assets/vendor/codemirror/javascript.js"></script>
+<script src="assets/vendor/codemirror/python.js"></script>
+<script src="assets/vendor/codemirror/overlay.js"></script>
+<script src="assets/vendor/codemirror/multiplex.js"></script>
+<script src="assets/vendor/codemirror/yaml-frontmatter.js"></script>
+<script src="assets/vendor/codemirror/rmarkdown.js"></script>
+<script src="assets/vendor/codemirror/matchbrackets.js"></script>
+<script src="assets/vendor/codemirror/closebrackets.js"></script>
+<script src="assets/vendor/codemirror/comment.js"></script>
+<script src="assets/vendor/codemirror/searchcursor.js"></script>
+<script src="assets/vendor/codemirror/active-line.js"></script>
+<script src="assets/vendor/codemirror/runmode.js"></script>
+<script src="assets/vendor/dompurify/purify.min.js"></script>
+<script src="assets/vendor/marked/marked.min.js"></script>
+<script src="assets/js/rsession.js"></script>
+<script src="assets/js/rui.js"></script>
+<script src="assets/js/dataview.js"></script>
+<script src="assets/js/rconsole.js"></script>
+<script src="assets/js/knit.js"></script>
+<script src="assets/js/rstudio.js"></script>
+<script src="assets/js/rsource.js"></script>
+<script src="assets/js/shiny.js"></script>
+<script src="assets/js/kernels.js"></script>
+<script src="assets/js/notebook.js"></script>
+<script src="assets/js/pdfview.js"></script>
+<script src="assets/js/editor.js"></script>
+<script src="assets/js/assistant.js"></script>
+<script src="assets/js/page.js"></script>
+<script src="assets/js/tutorial.js"></script>
+<script src="assets/js/workbench.js"></script>
+</body>
+</html>

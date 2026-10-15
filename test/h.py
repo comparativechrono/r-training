@@ -1,9 +1,9 @@
-"""Test harness: serves the site to a headless Chromium (Playwright) at https://rwb.test/, as GitHub Pages would
+"""Test harness: serves the site to a headless Chromium (Playwright) at https://rtr.test/, as GitHub Pages would
 with the service worker's headers in place (cross-origin isolated – SharedArrayBuffer), and helpers to drive it.
 
     from h import Page
     p = Page()                     # isolated; Page(isolated=False) for a page without SharedArrayBuffer
-    p.open('index.html')           # waits for the page to be ready
+    p.open('r-basics.html')        # waits for the page to be ready (index.html is the landing page)
     p.js('() => 1 + 1')
     p.close()
 
@@ -76,9 +76,9 @@ class Page:
         self.browser = self.pw.chromium.launch(headless=True, proxy={'server': proxy} if proxy and not base else None, args=args)
         self.ctx = self.browser.new_context(viewport={'width': width, 'height': height}, service_workers=service_workers,
                                             accept_downloads=True)
-        self.base = base or 'https://rwb.test/'
+        self.base = base or 'https://rtr.test/'
         if not base:
-            self.ctx.route('https://rwb.test/**', _serve(isolated, extra))
+            self.ctx.route('https://rtr.test/**', _serve(isolated, extra))
         self.p = self.ctx.new_page()
         self.logs = []
         self.errors = []
