@@ -194,6 +194,7 @@ The site was tested in Chromium (with Playwright) on 15 October 2026, with R and
 | `t01_examples.py` | That every piece of Console shown in the instructions is what R really prints: it runs all of them (53 in the two courses) in RStudio's Console and compares the output |
 | `t02_r_basics.py` | A student working through R basics from start to finish: their name, every step (including a script typed, run with <kbd>Ctrl</kbd>+<kbd>Enter</kbd> and saved), every question, steps that must *not* tick yet, the locked certificate and what it lists, the message when the course is finished, the certificate's preview and PDF (its text checked with `pdftotext`), and the landing page afterwards, with its preview and download |
 | `t03_tidyverse.py` | The same for the Tidyverse course, including installing and loading the tidyverse, and plots that must not tick their steps (a plot R can't draw, the wrong colours, the wrong data) |
+| `t06_reload.py` | That the data in `~/data` are kept in the browser like the student's own files: still there after the page is opened again (until 29 October 2026 they were copied before the page began to keep its files, so they had gone after a reload), and copied again for a student who had lost them, without overwriting a data file the student changed or a file of their own |
 
 The R workbench's own tests were also run against the scripts that the courses share with it, to check that the changes made for the courses (the name, the R checks, the certificates and the Console's handling of progress messages) haven't broken anything there. To run the tests you need Python 3, Playwright with Chromium, and `pdftotext` (from poppler-utils):
 
@@ -203,6 +204,7 @@ python3 test/t00_answers.py
 python3 test/t01_examples.py
 python3 test/t02_r_basics.py
 python3 test/t03_tidyverse.py
+python3 test/t06_reload.py
 ```
 
 ## Files
